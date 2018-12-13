@@ -6,23 +6,36 @@ import (
 	"strings"
 )
 
-type Catalog struct {
-	products map[int]Product
-	add func()
-
-}
-
 type Product struct {
 	name  string
 	count int64
 	price float64
 }
 
+type Catalog struct {
+	products map[int]Product
+	Add      func()
+	Edit     func()
+}
 
+func main() {
+	m := Catalog{map[int]Product{}, Add, Edit}
+	m.Add()
 
+}
+
+func Add() {
+	ww
+}
+func Edit() {
+	fes
+}
+func my() {
+	Catalog.Add()
+}
 
 //Эта функция выводит стартовую страницу
-func (Add Catalog)startPage(w http.ResponseWriter, r *http.Request) {
+func startPage(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write([]byte(StartPage()))
 }
 
@@ -39,7 +52,6 @@ func GetList(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Location", "http://localhost:8080/add")
 	_, _ = w.Write([]byte(NewPage(addString())))
 }
-
 
 //Эта функция возвращает на стартовую страницу при нажатии на кнопку назад кнопка назад прописана в
 // form action и возвращает ссылку по которой обработчик запускает эту функцию
