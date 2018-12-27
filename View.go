@@ -24,23 +24,27 @@ func renderError(err string) string {
 	return "<span style='color:red'>" + err + "</span>"
 }
 
-func generatePageListHTMLController(MyCatalog *Catalog) string {
+func generatePageListHTMLController(catalog Catalog) string {
 
 	b := ""
+	mep := catalog.GetAll()
 
-	for a := 1; a <= MyCatalog.lastId; a++ {
-		arr := make([]string, 10)
+	for i := range mep {
+
+		arr := make([]string, 11)
 		arr[0] = `<tr><td>`
-		arr[1] = strconv.Itoa(MyCatalog.products[a].id)
+		arr[1] = strconv.Itoa(mep[i].id)
 		arr[2] = `</td><td>`
-		arr[3] = MyCatalog.products[a].name
+		arr[3] = mep[i].name
 		arr[4] = `</td><td>`
-		arr[5] = strconv.FormatInt(MyCatalog.products[a].count, 10)
+		arr[5] = strconv.FormatInt(mep[i].count, 10)
 		arr[6] = `</td><td>`
-		arr[7] = strconv.FormatFloat(MyCatalog.products[a].price, 'f', 0, 64)
-		arr[8] = `</td><td><a href="http://localhost:8080/edit?product_id=` + strconv.Itoa(a) + `"><button>Изменить</button></a></td>`
-		arr[9] = `</td></tr>`
+		arr[7] = strconv.FormatFloat(mep[i].price, 'f', 0, 64)
+		arr[8] = `</td><td><a href="http://localhost:8080/edit?product_id=` + strconv.Itoa(i) + `"><button>Изменить</button></a></td>`
+		arr[9] = `<td><a href="http://localhost:8080/delete?product_id=` + strconv.Itoa(i) + `"><button>Удалить</button></a></td>`
+		arr[10] = `</tr>`
 		b += strings.Join(arr, "")
+		fmt.Println(i)
 	}
 
 	return b
@@ -120,7 +124,7 @@ func EditPageView(form CreateProductForm, headerName, buttonName string, id int)
     <br>
 	<input type="text" name="Third" placeholder="Колличество" value="`, form.price, `">`, renderError(form.priceError), `
 	<br>
-	<a href="http://localhost:8080/edit?product_id=`+strconv.Itoa(id)+`"><button name = "product_id" value ="`+strconv.Itoa(id)+`">`, buttonName, `</button></a>
+	<button name = "product_id" value ="`+strconv.Itoa(id)+`">`, buttonName, `</button>
 
 </form>
 </body>
@@ -172,7 +176,7 @@ func ProductListView(b string) string {
   	 </style>
     </head>
 	<body>
-		<button id='hello'>Hello</button>
+		
 		<table>
 		<caption>Список товаров</caption>	
 				<tr>
@@ -181,6 +185,7 @@ func ProductListView(b string) string {
 					<td>Колличество</td>
 					<td>Цена</td>
 					<td>Редактировать</td>
+					<td>Удалить</td>
 				</tr>  
 				`, b, `
 		</table>
@@ -188,9 +193,7 @@ func ProductListView(b string) string {
 	<form action="http://localhost:8080/list" method="POST">
 			<input  type="submit" value="Добавить">
 	</form>
-	<div id='trash'"></div>
 </body>
-<script>document.getElementById('hello').addEventListener('click', event => fetch("http://localhost:8080/list").then(data => data.text()).then(html => document.getElementById('trash').innerHTML = html))</script>
 </html>
 `)
 }

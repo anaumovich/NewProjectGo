@@ -2,52 +2,28 @@ package main
 
 import (
 	"errors"
+	"fmt"
+	"net/http"
 	"os"
-	"strconv"
 )
 
-type Storage struct {
-	// private
-	products map[int]Product
-}
+/*import (
+	"errors"
+)
 
-func NewStorage() *Storage {
-	return &Storage{products: make(map[int]Product)}
-}
+func newCatalog() *FileCatalog {
 
-type Catalog struct {
-	storage *Storage
-
-	products map[int]*Product
-
-	lastId int
-}
-
-// todo getProductWithId(id int) (*Product, error)
-
-// todo Naming for constructors
-//конструктор
-func newCatalog() *Catalog {
-	catalog := &Catalog{}
-
-	catalog.storage = NewStorage()
+	catalog := FileCatalog{}
 
 	catalog.products = make(map[int]*Product)
 
-	return catalog
-}
+	//catalog.storage = NewStorage()
 
-type Product struct {
-	name  string
-	count int64
+	return &catalog
+}*/
 
-	price float64
-	id    int
-}
-
-// todo add setters for
-
-func (catalog *Catalog) AddNewProduct(product *Product, file os.File) (int, error) {
+/*
+func AddNewProduct(product *Product, file os.File) (int, error) {
 	if product.id != 0 {
 		return 0, errors.New("product already have id")
 	} else {
@@ -67,9 +43,10 @@ func (catalog *Catalog) AddNewProduct(product *Product, file os.File) (int, erro
 
 	return catalog.lastId, nil
 
-}
+}*/
 
-func (catalog *Catalog) ReadProductsFromFileAndWriteThemInCatalog(product *Product, file os.File) (int, error) {
+// ReadProductsFromFileAndWriteThemInCatalog
+/*func (catalog *FileCatalog) RestoreFromFile(product *Product, file os.File) (int, error) {
 	catalog.lastId++
 	product.id = catalog.lastId
 	catalog.products[catalog.lastId] = product
@@ -77,35 +54,128 @@ func (catalog *Catalog) ReadProductsFromFileAndWriteThemInCatalog(product *Produ
 	return catalog.lastId, nil
 }
 
-func createNewProduct(name string, count int64, price float64, id int) (*Product, error) {
+func (catalog *FileCatalog) DeleteElemetById(checkId int, Catalog *FileCatalog, reader bufio.Reader, file os.File) {
+
+	_, _ = file.Seek(0, 0)
+	currentDisplacement := 0
+
+	for {
+
+		line, _, _ := reader.ReadLine()
+		lineX := string(line) + "\n"
+		StartCurrentString := len(lineX)
+		currentDisplacement += len(lineX)
+		thisPosition := currentDisplacement - StartCurrentString
+		if len(line) == 0 {
+			break
+		}
+
+		id, _ := strconv.Atoi(string(line[1:strings.IndexAny(string(line), "|")]))
+
+		if checkId == id {
+
+			_ = file.Truncate(int64(thisPosition)) // обрезаем файл по последнему байту этой строки
+
+			_, _ = file.Seek(int64(thisPosition), 0)
+
+			for i := checkId + 1; i <= Catalog.lastId; i++ { // в конец строки пушим из памяти все данные из виртуальной бд
+				x := Catalog.products[i].name
+				y := strconv.Itoa(int(Catalog.products[i].count))
+				z := strconv.Itoa(int(Catalog.products[i].price))
+				w := strconv.Itoa(Catalog.products[i].id - 1)
+
+				str := "#" + w + "|" + x + "$" + y + "&" + z + "\n"
+
+				_, _ = file.WriteString(str)
+			}
+		}
+	}
+}
+
+func (catalog *FileCatalog) GetAll() map[int]*Product {
+	// todo read all from file
+	return catalog.products
+}
+*/
+
+//It's OK
+func SetCatalogType() Catalog {
+	var catalog Catalog
+	//var useFile string
+
+	/*fmt.Print("Use file? ( y/n )")
+	_, _ = fmt.Fscanln(os.Stdin, &useFile)
+
+	if useFile == "y" {*/
+	catalog = newFileCatalog()
+	fmt.Println("localhost started with FileCatalog")
+	return catalog
+	/*}
+
+	if useFile == "n" {
+		catalog = NewInMemoryCatalog()
+		fmt.Println("localhost started with InMemoryCatalog")
+		return catalog
+	} else {
+		SetCatalogType()
+	}*/
+	return catalog
+}
+
+//It's OK
+func openOrCreateFile() *os.File {
+
+	_, err := os.Stat("MyFile.txt")
+	if err != nil {
+		file, _ := os.Create("MyFile.txt")
+		fmt.Println("I create File")
+		return file
+	} else {
+		file, _ := os.OpenFile("MyFile.txt", os.O_RDWR, 111)
+		fmt.Println("I open File")
+		return file
+	}
+}
+
+func createNewProduct(id int, name string, count int64, price float64) (*Product, error) {
 	if name == "" || count < 0 || price < 0 {
 		return nil, errors.New("invalid product data")
 	} else {
-		MyProduct := Product{name, count, price, id}
+		product := Product{id, name, count, price}
 
-		return &MyProduct, nil
+		return &product, nil
 	}
 }
 
-//бизнес логика
+func CheckError(r http.Request, name string, countErr, priceErr error) (hasError bool, form *CreateProductForm) {
 
-func (*Product) CheckNameSetter(name string, id int) (bool, error) {
+	hasError = false
+
+	createProductForm := CreateProductForm{}
+
+	createProductForm.name = name
+	createProductForm.count = r.FormValue("Second")
+	createProductForm.price = r.FormValue("Third")
+
 	if name == "" {
-		return true, errors.New("invalid product name")
-	}
-	return false, nil
-}
+		createProductForm.nameError = "Ошибка имени"
 
-func (*Product) CheckCountSetter(count int64, id int) (bool, error) {
-	if count < 0 {
-		return true, errors.New("invalid product count")
+		hasError = true
 	}
-	return false, nil
-}
 
-func (*Product) CheckPriceSetter(price float64, id int) (bool, error) {
-	if price <= 0 {
-		return true, errors.New("invalid product price")
+	if countErr != nil {
+		createProductForm.countError = "Ошибка колличества"
+		createProductForm.count = r.FormValue("Second")
+
+		hasError = true
 	}
-	return false, nil
+
+	if priceErr != nil {
+		createProductForm.priceError = "Ошибка стоимости"
+		createProductForm.price = r.FormValue("Third")
+
+		hasError = true
+	}
+
+	return hasError, &createProductForm
 }

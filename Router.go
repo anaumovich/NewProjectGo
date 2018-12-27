@@ -1,36 +1,31 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"net/http"
-	"os"
-	"strconv"
 	"strings"
 )
 
 func main() {
 
-	file := OpenOrCreateFile()
-	reader := bufio.NewReader(file)
+	catalog := SetCatalogType()
 
-	Catalog := newCatalog()
-	ReadLine(Catalog, reader)
+	handler := createRootHandler(getRoutes(&catalog))
 
-	handler := createRootHandler(getRoutes(Catalog, *file, *reader))
 	http.HandleFunc("/", http.HandlerFunc(handler))
 
 	_ = http.ListenAndServe(":8080", nil)
 }
 
-func getRoutes(Catalog *Catalog, file os.File, reader bufio.Reader) (m map[string]func(w http.ResponseWriter, r *http.Request)) {
+func getRoutes(catalog *Catalog) (m map[string]func(w http.ResponseWriter, r *http.Request)) {
 	m = make(map[string]func(w http.ResponseWriter, r *http.Request))
 	m["GET/add"] = AddFormController
-	m["POST/add"] = AddProductController(Catalog, file)
-	m["GET/list"] = PrintListController(Catalog)
+	m["POST/add"] = AddProductController(*catalog)
+	m["GET/list"] = PrintListController(*catalog)
 	m["POST/list"] = ReturnToHomeController
-	m["GET/edit"] = FetchProductController(Catalog)
-	m["POST/edit"] = EditProductController(Catalog, file, reader)
+	m["GET/edit"] = FetchProductController(*catalog)
+	m["POST/edit"] = EditProductController(*catalog)
+	m["GET/delete"] = DeleteProductController(*catalog)
 	return m
 }
 
@@ -43,28 +38,15 @@ func createRootHandler(m map[string]func(w http.ResponseWriter, r *http.Request)
 		} else {
 			w.Header().Set("Location", "http://localhost:8080/list")
 			w.WriteHeader(302)
-
 		}
 	}
 }
 
-func OpenOrCreateFile() *os.File {
+/*
+func ReadLine(catalog *FileCatalog, reader *bufio.Reader) {
 
-	_, err := os.Stat("MyFile.txt")
-	if err != nil {
-		file, _ := os.Create("MyFile.txt")
-		fmt.Println("I create File")
-		return file
-	} else {
-		file, _ := os.OpenFile("MyFile.txt", os.O_RDWR, 111)
-		fmt.Println("I open File")
-		return file
-	}
-
-}
-
-func ReadLine(catalog *Catalog, reader *bufio.Reader) {
 	for {
+
 		line, _, _ := reader.ReadLine()
 
 		if len(line) == 0 {
@@ -80,13 +62,14 @@ func ReadLine(catalog *Catalog, reader *bufio.Reader) {
 		count, _ := strconv.ParseInt(string(line[n+1:c]), 10, 64)
 		price, _ := strconv.ParseFloat(string(line[c+1:]), 64)
 
-		/*Здесь можно будет добваить логику поиска ID*/
+		//fmt.Println(id, name, count, price)
+		/*Здесь можно будет добваить логику поиска ID
 
-		_, _ = catalog.ReadProductsFromFileAndWriteThemInCatalog(&Product{name, count, price, id}, os.File{})
+		_, _ = catalog.RestoreFromFile(&Product{name, count, price, id}, os.File{})
 	}
-}
-
-func FindPositionAndChangeLineInFile(checkId int, name string, count int64, price float64, catalog *Catalog, reader *bufio.Reader, file os.File) {
+}*/
+/*
+func FindPositionAndChangeLineInFile(checkId int, name string, count int64, price float64, catalog *FileCatalog, reader *bufio.Reader, file os.File) {
 
 	_, _ = file.Seek(0, 0)
 	a := name
@@ -94,11 +77,18 @@ func FindPositionAndChangeLineInFile(checkId int, name string, count int64, pric
 	c := strconv.Itoa(int(price))
 	d := strconv.Itoa(checkId)
 
-	lenght := 0
+	currentDisplacement := 0
 
 	for {
 
 		line, _, _ := reader.ReadLine()
+		lineX := string(line) + "\n"
+
+		StartCurrentString := len(lineX)
+
+		currentDisplacement += len(lineX)
+
+		thisPosition := currentDisplacement - StartCurrentString
 
 		if len(line) == 0 {
 			break
@@ -106,36 +96,27 @@ func FindPositionAndChangeLineInFile(checkId int, name string, count int64, pric
 
 		id, _ := strconv.Atoi(string(line[1:strings.IndexAny(string(line), "|")]))
 
-		this := len(line)
-
-		lenght += len(line)
-
 		if checkId == id {
 
-			textImpression := "\n" + "#" + d + "|" + a + "$" + b + "&" + c + "\n"
+			textImpression := "#" + d + "|" + a + "$" + b + "&" + c + "\n"
 
-			if id == 1 {
-				textImpression = "#" + d + "|" + a + "$" + b + "&" + c + "\n"
-			}
-			_, _ = file.Seek(0, 0)
+			_, _ = file.Seek(int64(thisPosition), 0) // устанавливаем курсор в позицию записи
 
-			_, _ = file.Seek(int64(this), 1)
+			_, _ = file.WriteString(textImpression) //записываем введенную строку
 
-			_, _ = file.WriteString(textImpression)
+			_ = file.Truncate(int64(thisPosition + len(textImpression))) // обрезаем файл по последнему байту этой строки
 
-			for i := checkId + 1; i <= catalog.lastId; i++ {
-				a := catalog.products[i].name
-				b := strconv.Itoa(int(catalog.products[i].count))
-				c := strconv.Itoa(int(catalog.products[i].price))
-				d := strconv.Itoa(catalog.products[i].id)
+			for i := checkId + 1; i <= catalog.lastId; i++ { // в конец строки пушим из памяти все данные из виртуальной бд
+				x := catalog.products[i].name
+				y := strconv.Itoa(int(catalog.products[i].count))
+				z := strconv.Itoa(int(catalog.products[i].price))
+				w := strconv.Itoa(catalog.products[i].id)
 
-				str := "#" + d + "|" + a + "$" + b + "&" + c + "\n"
+				str := "#" + w + "|" + x + "$" + y + "&" + z + "\n"
 
 				_, _ = file.WriteString(str)
 
 			}
-
 		}
-
 	}
-}
+}*/
