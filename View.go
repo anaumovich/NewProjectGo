@@ -44,14 +44,13 @@ func generatePageListHTMLController(catalog Catalog) string {
 		arr[9] = `<td><a href="http://localhost:8080/delete?product_id=` + strconv.Itoa(i) + `"><button>Удалить</button></a></td>`
 		arr[10] = `</tr>`
 		b += strings.Join(arr, "")
-		fmt.Println(i)
 	}
 
 	return b
 }
 
 // todo pass by ref
-func AddPageView(form CreateProductForm, headerName, buttonName string, id int, localWay string) string {
+func AddPageView(form CreateProductForm, headerName, buttonName string, localWay string) string {
 	return fmt.Sprint(`
 <!DOCTYPE html>
 <html> 
@@ -82,7 +81,7 @@ func AddPageView(form CreateProductForm, headerName, buttonName string, id int, 
     <br>
 	<input type="text" name="Third" placeholder="Колличество" value="`, form.price, `">`, renderError(form.priceError), `
 	<br>
-	<a href="http://localhost:8080/list"><button name = "product_id" value ="`+strconv.Itoa(id)+`">`, buttonName, `</button></a>
+	<a href="http://localhost:8080/list"><button name = "product_id" value ="noValue">`, buttonName, `</button></a>
 
 </form>
 </body>
