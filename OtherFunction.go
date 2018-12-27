@@ -8,19 +8,18 @@ import (
 )
 
 func SetCatalogType() Catalog {
+
 	var catalog Catalog
-	var useFile string
 
-	fmt.Print("Use file? ( y/n )")
-	_, _ = fmt.Fscanln(os.Stdin, &useFile)
+	useFile := os.Args[1]
 
-	if useFile == "y" {
+	if useFile == "f" {
 		catalog = newFileCatalog()
 		fmt.Println("localhost started with FileCatalog")
 		return catalog
 	}
 
-	if useFile == "n" {
+	if useFile == "m" {
 		catalog = NewInMemoryCatalog()
 		fmt.Println("localhost started with InMemoryCatalog")
 		return catalog
