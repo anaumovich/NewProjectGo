@@ -1,7 +1,7 @@
-package Anton
+package main
 
 import (
-	"Anton/Catalog"
+	"Anton/CatalogModel"
 	"Anton/Controller"
 	"Anton/utils"
 	"fmt"
@@ -11,16 +11,16 @@ import (
 
 func main() {
 
-	catalog := utils.SetCatalogType()
+	Catalog := utils.SetCatalogType()
 
-	handler := createRootHandler(getRoutes(&catalog))
+	handler := createRootHandler(getRoutes(&Catalog))
 
 	http.HandleFunc("/", http.HandlerFunc(handler))
 
 	_ = http.ListenAndServe(":8080", nil)
 }
 
-func getRoutes(catalog *Catalog.Catalog) (m map[string]func(w http.ResponseWriter, r *http.Request)) {
+func getRoutes(catalog *CatalogModel.Catalog) (m map[string]func(w http.ResponseWriter, r *http.Request)) {
 	m = make(map[string]func(w http.ResponseWriter, r *http.Request))
 	m["GET/list"] = Controller.PrintListController(*catalog)
 	m["GET/add"] = Controller.AddFormController

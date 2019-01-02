@@ -1,7 +1,7 @@
 package Controller
 
 import (
-	"Anton/Catalog"
+	"Anton/CatalogModel"
 	"Anton/View"
 	"Anton/utils"
 	"net/http"
@@ -12,7 +12,7 @@ func AddFormController(w http.ResponseWriter, r *http.Request) {
 	_, _ = w.Write([]byte(View.AddPageView(View.CreateProductForm{}, "Добавьте новый продукт", "Добавить", "")))
 }
 
-func AddProductController(catalog Catalog.Catalog) func(http.ResponseWriter, *http.Request) {
+func AddProductController(catalog CatalogModel.Catalog) func(http.ResponseWriter, *http.Request) {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -28,7 +28,7 @@ func AddProductController(catalog Catalog.Catalog) func(http.ResponseWriter, *ht
 
 		} else {
 
-			product, err := utils.CreateNewProduct(0, name, count, price)
+			product, err := catalog.CreateNewProduct(0, name, count, price)
 
 			if err != nil {
 
@@ -42,7 +42,7 @@ func AddProductController(catalog Catalog.Catalog) func(http.ResponseWriter, *ht
 	}
 }
 
-func EditProductController(catalog Catalog.Catalog) func(http.ResponseWriter, *http.Request) {
+func EditProductController(catalog CatalogModel.Catalog) func(http.ResponseWriter, *http.Request) {
 
 	return func(w http.ResponseWriter, r *http.Request) {
 
@@ -59,17 +59,16 @@ func EditProductController(catalog Catalog.Catalog) func(http.ResponseWriter, *h
 				_, _ = w.Write([]byte(View.EditPageView(*createProductForm, "Измените продукт", "Изменить", id)))
 			}
 		} else {
-			_, _ = catalog.EditProduct(&Catalog.Product{id, name, count, price}) //!!!!!!!!
+			_, _ = catalog.EditProduct(id, name, count, price) //!!!!!!!!
 
 			http.Redirect(w, r, "http://localhost:8080/list", http.StatusFound)
 		}
 	}
 }
 
-func PrintListController(catalog Catalog.Catalog) func(http.ResponseWriter, *http.Request) {
+func PrintListController(catalog CatalogModel.Catalog) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		b := View.GeneratePageListHTMLController(catalog)
-		_, _ = w.Write([]byte(View.ProductListView(b)))
+		_, _ = w.Write([]byte(View.PrintProductList(catalog)))
 	}
 }
 
@@ -79,21 +78,22 @@ func ReturnToHomeController(w http.ResponseWriter, r *http.Request) {
 }
 
 //Эта функция выводит изменяемый объект
-func FetchProductController(catalog Catalog.Catalog) func(http.ResponseWriter, *http.Request) {
+func FetchProductController(catalog CatalogModel.Catalog) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cameId, _ := strconv.Atoi(r.URL.Query().Get("product_id"))
 
 		product, _ := catalog.GetProductByID(cameId)
-		productForm := View.CreateProductForm{}
-		productForm.name = product.name
-		productForm.count = strconv.Itoa(int(product.count))
-		productForm.price = strconv.Itoa(int(product.price))
 
-		_, _ = w.Write([]byte(View.EditPageView(productForm, "Измените продукт", "Изменить", product.id)))
+		productForm := View.CreateProductForm{}
+		productForm.Name = product.GetName()
+		productForm.Count = strconv.Itoa(int(product.GetCount()))
+		productForm.Price = strconv.Itoa(int(product.GetPrice()))
+
+		_, _ = w.Write([]byte(View.EditPageView(productForm, "Измените продукт", "Изменить", cameId)))
 	}
 }
 
-func DeleteProductController(catalog Catalog.Catalog) func(http.ResponseWriter, *http.Request) {
+func DeleteProductController(catalog CatalogModel.Catalog) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, _ := strconv.Atoi(r.URL.Query().Get("product_id"))
 
