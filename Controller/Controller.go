@@ -4,6 +4,7 @@ import (
 	"Anton/CatalogModel"
 	"Anton/View"
 	"Anton/utils"
+	"fmt"
 	"net/http"
 	"strconv"
 )
@@ -19,6 +20,7 @@ func AddProductController(catalog CatalogModel.Catalog) func(http.ResponseWriter
 		name := r.FormValue("First")
 		count, countErr := strconv.ParseInt(r.FormValue("Second"), 10, 64)
 		price, priceErr := strconv.ParseFloat(r.FormValue("Third"), 64)
+		productType := r.FormValue("productType")
 
 		hasError, createProductForm := utils.CheckError(*r, name, countErr, priceErr)
 
@@ -28,7 +30,7 @@ func AddProductController(catalog CatalogModel.Catalog) func(http.ResponseWriter
 
 		} else {
 
-			product, err := catalog.CreateNewProduct(0, name, count, price)
+			product, err := catalog.CreateNewProduct(0, name, count, price, productType)
 
 			if err != nil {
 
@@ -98,6 +100,20 @@ func DeleteProductController(catalog CatalogModel.Catalog) func(http.ResponseWri
 		id, _ := strconv.Atoi(r.URL.Query().Get("product_id"))
 
 		_ = catalog.DeleteProductById(id)
+
+		http.Redirect(w, r, "http://localhost:8080/list", http.StatusFound)
+	}
+}
+
+func SetDiscountController(catalog CatalogModel.Catalog) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		productType := r.FormValue("discountType")
+		discount := r.FormValue("discount")
+		fmt.Println(productType, discount)
+		all := catalog.GetAll()
+		for range all {
+			fmt.Println()
+		}
 
 		http.Redirect(w, r, "http://localhost:8080/list", http.StatusFound)
 	}

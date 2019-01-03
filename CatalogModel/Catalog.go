@@ -10,15 +10,15 @@ import (
 )
 
 type product struct {
-	id    int
-	name  string
-	count int64
-	price float64
-	CalculateDiscount CalculateDiscount
+	id               int
+	name             string
+	count            int64
+	price, viewPrice float64
+	makeDiscount     MakeDiscount
 }
 
 type Catalog interface {
-	CreateNewProduct(int, string, int64, float64) (*product, error)
+	CreateNewProduct(int, string, int64, float64, string) (*product, error)
 
 	AddNewProduct(*product) (int, error)
 
@@ -47,19 +47,29 @@ func NewFileCatalog() *FilesCatalog {
 
 //
 
-func (catalog FilesCatalog) CreateNewProduct(id int, name string, count int64, price float64) (*product, error) {
+func (catalog FilesCatalog) CreateNewProduct(id int, name string, count int64, price float64, productType string) (*product, error) {
 	if name == "" || count < 0 || price < 0 {
 		return nil, errors.New("invalid product data")
 	} else {
-
-		MeatProduct:=
-
-		product :=
+		product := NewProduct(DiscountProduct{})
 
 		product.id = id
 		product.name = name
 		product.count = count
 		product.price = price
+
+		if productType == "Мясо" {
+			price = product.DiscountMeat(0.4)
+			product.viewPrice = price
+		}
+		if productType == "Фрукты" {
+			price = product.DiscountFruits(0.7)
+			product.viewPrice = price
+		}
+		if productType == "Овощи" {
+			price = product.DiscountVegetables(0.3)
+			product.viewPrice = price
+		}
 
 		return &product, nil
 	}
@@ -181,7 +191,10 @@ func (catalog FilesCatalog) GetAll() map[int]*product {
 		count, _ := strconv.ParseInt(string(line[n+1:c]), 10, 64)
 		price, _ := strconv.ParseFloat(string(line[c+1:]), 64)
 
-		thisMap[id] = &product{id, name, count, price}
+		thisMap[id].id = id
+		thisMap[id].name = name
+		thisMap[id].count = count
+		thisMap[id].price = price
 
 	}
 
@@ -267,7 +280,10 @@ func (FilesCatalog) GetProductByID(cameId int) (*product, error) {
 			count, _ := strconv.ParseInt(string(line[n+1:c]), 10, 64)
 			price, _ := strconv.ParseFloat(string(line[c+1:]), 64)
 
-			Product = &product{id, name, count, price}
+			Product.id = id
+			Product.name = name
+			Product.count = count
+			Product.price = price
 
 		}
 	}
@@ -288,14 +304,33 @@ func NewInMemoryCatalog() *InMemoryCatalog {
 	return &catalog
 }
 
-func (catalog InMemoryCatalog) CreateNewProduct(id int, name string, count int64, price float64) (*product, error) {
+func (catalog InMemoryCatalog) CreateNewProduct(id int, name string, count int64, price float64, productType string) (*product, error) {
 	if name == "" || count < 0 || price < 0 {
 		return nil, errors.New("invalid product data")
 	} else {
-		product := product{id, name, count, price}
+		product := NewProduct(DiscountProduct{})
+
+		product.id = id
+		product.name = name
+		product.count = count
+		product.price = price
+
+		if productType == "Мясо" {
+			price = product.DiscountMeat(0.4)
+			product.viewPrice = price
+		}
+		if productType == "Фрукты" {
+			price = product.DiscountFruits(0.7)
+			product.viewPrice = price
+		}
+		if productType == "Овощи" {
+			price = product.DiscountVegetables(0.3)
+			product.viewPrice = price
+		}
 
 		return &product, nil
 	}
+
 }
 
 func (catalog InMemoryCatalog) AddNewProduct(product *product) (int, error) {
@@ -327,6 +362,8 @@ func (catalog InMemoryCatalog) EditProduct(cameId int, name string, count int64,
 	catalog.products[cameId].name = name
 	catalog.products[cameId].count = count
 	catalog.products[cameId].price = price
+
+	//здесь должна быть строка которая пересчитает размер скидки с учетом изменения стоимости
 
 	return cameId, errors.New("can't edit product")
 }
@@ -366,4 +403,38 @@ func (p product) GetCount() int64 {
 func (p product) GetPrice() float64 {
 	price := p.price
 	return price
+}
+func (p product) GetViewPrice() float64 {
+	viewPrice := p.viewPrice
+	return viewPrice
+}
+
+type MakeDiscount interface {
+	MakeDiscount()
+}
+
+type DiscountProduct struct {
+}
+
+func (DiscountProduct) MakeDiscount() {
+
+}
+
+func NewProduct(makeDiscount MakeDiscount) product {
+	return product{makeDiscount: makeDiscount}
+}
+
+func (d product) DiscountMeat(discount float64) float64 {
+	d.price = d.price * discount
+	return d.price
+}
+
+func (d product) DiscountVegetables(discount float64) float64 {
+	d.price = d.price * discount
+	return d.price
+}
+
+func (d product) DiscountFruits(discount float64) float64 {
+	d.price = d.price * discount
+	return d.price
 }
