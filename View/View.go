@@ -40,38 +40,8 @@ func renderError(err string) string {
 	return "<span style='color:red'>" + err + "</span>"
 }
 
-func PrintProductList(catalog CatalogModel.Catalog) string {
-
-	b := ""
-	mep := catalog.GetAll()
-
-	for i := range mep {
-
-		arr := make([]string, 13)
-		arr[0] = `<tr><td>`
-		arr[1] = strconv.Itoa(mep[i].GetId())
-		arr[2] = `</td><td>`
-		arr[3] = mep[i].GetName()
-		arr[4] = `</td><td>`
-		arr[5] = strconv.FormatInt(mep[i].GetCount(), 10)
-		arr[6] = `</td><td>`
-		arr[7] = strconv.FormatFloat(mep[i].GetPrice(), 'f', 0, 64)
-		arr[8] = `</td><td>`
-		arr[9] = "" //strconv.FormatFloat(mep[i].GetViewPrice(), 'f', 0, 64)
-		arr[10] = `</td><td><a href="http://localhost:8080/edit?product_id=` + strconv.Itoa(i) + `"><button>Изменить</button></a></td>`
-		arr[11] = `<td><a href="http://localhost:8080/delete?product_id=` + strconv.Itoa(i) + `"><button>Удалить</button></a></td>`
-		arr[12] = `</tr>`
-
-		b += strings.Join(arr, "")
-	}
-
-	return fmt.Sprint(`
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8">
-    <title>Окно результатов</title>
-	<style type="text/css">
+func resultPageStyles() string {
+	return `<style type="text/css">
 		html {
 			display: flex; 
 			justify-content: center;
@@ -125,9 +95,46 @@ func PrintProductList(catalog CatalogModel.Catalog) string {
 			text-align-last: center;
 		}
 
-  	 </style>
-    </head>
-	<body>
+  	 </style>`
+}
+
+func html(child ...string) string {
+	return fmt.Sprint(`<!DOCTYPE html>
+<html>`, child, `</html>`)
+}
+
+func PrintProductList(catalog CatalogModel.Catalog) string {
+
+	b := ""
+	mep := catalog.GetAll()
+
+	for i := range mep {
+
+		arr := make([]string, 13)
+		arr[0] = `<tr><td>`
+		arr[1] = strconv.Itoa(mep[i].GetId())
+		arr[2] = `</td><td>`
+		arr[3] = mep[i].GetName()
+		arr[4] = `</td><td>`
+		arr[5] = strconv.FormatInt(mep[i].GetCount(), 10)
+		arr[6] = `</td><td>`
+		arr[7] = strconv.FormatFloat(mep[i].GetPrice(), 'f', 0, 64)
+		arr[8] = `</td><td>`
+		arr[9] = "" //strconv.FormatFloat(mep[i].GetViewPrice(), 'f', 0, 64)
+		arr[10] = `</td><td><a href="http://localhost:8080/edit?product_id=` + strconv.Itoa(i) + `"><button>Изменить</button></a></td>`
+		arr[11] = `<td><a href="http://localhost:8080/delete?product_id=` + strconv.Itoa(i) + `"><button>Удалить</button></a></td>`
+		arr[12] = `</tr>`
+
+		b += strings.Join(arr, "")
+	}
+
+	return fmt.Sprint(
+		html(
+			head(
+				title(`Окно результатов`),
+				resultPageStyles(),
+			),
+			`<body>
 		<div>
 		<table>
 		<caption>Список товаров</caption>	
@@ -170,9 +177,19 @@ func PrintProductList(catalog CatalogModel.Catalog) string {
 </div>
 		
 	
-</body>
-</html>
-`)
+</body>`,
+		))
+}
+
+func title(child ...string) string {
+	return fmt.Sprint(`<title>`, child, `</title>`)
+}
+
+func head(child ...string) string {
+	return fmt.Sprint(`<head>
+    <meta charset="utf-8">
+`, child, `
+    </head>`)
 }
 
 // todo pass by ref
@@ -192,10 +209,7 @@ func AddPageView(form CreateProductForm, headerName, buttonName string, localWay
 		background:deeppink;
 		}
 </style>
-<head>
-    <meta charset="utf-8">
-    <title>Кнопка отправки формы</title>
-    </head>
+`, head(title(`Добавление продукта`)), `
 <body>
 <h3>`, headerName, ` </h3>
 <form action="http://localhost:8080/add`, localWay, ` " method="POST" style="display: flex; flex-direction: column;">
@@ -224,11 +238,7 @@ func EditPageView(form CreateProductForm, headerName, buttonName string, id int)
 	return fmt.Sprint(`
 <!DOCTYPE html>
 <html> 
-`, styles, `
-<head>
-    <meta charset="utf-8">
-    <title>Кнопка отправки формы</title>
-    </head>
+`, styles, head(title(`Редактирвание продукта`)), `
 <body>
 <h3>`, headerName, ` </h3>
 <form action="http://localhost:8080/edit?product_id=`+strconv.Itoa(id)+` " method="POST" style="display: flex; flex-direction: column;">

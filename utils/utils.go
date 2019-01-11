@@ -8,8 +8,8 @@ import (
 	"os"
 )
 
+// todo use AbstractFactory
 func SetCatalogType() CatalogModel.Catalog {
-
 	var catalog CatalogModel.Catalog
 
 	useFile := os.Args[1]

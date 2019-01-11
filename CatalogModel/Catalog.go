@@ -5,12 +5,18 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	_ "github.com/lib/pq"
 	"os"
 	"strconv"
 	"strings"
+
+	_ "github.com/lib/pq"
 )
 
+// todo make public
+// use constructor for new inst creation move logic of validation to constructor
+
+// Rule: new product don't has id. New it's - mean not saved.
+// when user call catalog.AddNewProduct() catalog set id to product
 type product struct {
 	id                int
 	name, productType string
@@ -284,8 +290,7 @@ func (FilesCatalog) GetProductByID(cameId int) (*product, error) {
 	return Product, errors.New("product not found")
 }
 
-//
-
+// todo move
 type InMemoryCatalog struct {
 	products map[int]*product
 }
@@ -354,8 +359,7 @@ func (catalog InMemoryCatalog) GetProductByID(cameId int) (*product, error) {
 	return catalog.products[cameId], errors.New("product not found")
 }
 
-//
-
+// todo move to separate file
 type DbCatalog struct {
 	products map[int]*product
 }
@@ -363,13 +367,13 @@ type DbCatalog struct {
 func NewDbCatalog() *DbCatalog {
 
 	catalog := DbCatalog{}
+	// todo ?
 	catalog.products = make(map[int]*product)
 
 	return &catalog
 }
 
-//
-
+// todo remove
 func (catalog DbCatalog) CreateNewProduct(id int, name string, count int64, price float64, productType string) (*product, error) {
 	if name == "" || count < 0 || price < 0 {
 		return nil, errors.New("invalid product data")
@@ -419,7 +423,7 @@ func (catalog DbCatalog) DeleteProductById(cameId int) error {
 }
 
 func (catalog DbCatalog) GetAll() map[int]*product {
-
+	// todo move to method
 	db, _ := sql.Open("postgres", "user = postgres password = 123 dbname = Catalog sslmode = disable")
 	rows, _ := db.Query("select * from catalog")
 	thisMap := map[int]*product{}
@@ -442,7 +446,7 @@ func (DbCatalog) EditProduct(cameId int, name string, count int64, price float64
 }
 
 func (DbCatalog) GetProductByID(cameId int) (*product, error) {
-	Product := &product{}
+	Product := &product{} // todo naming
 
 	db, _ := sql.Open("postgres", "user = postgres password = 123 dbname = Catalog sslmode = disable")
 
@@ -454,7 +458,6 @@ func (DbCatalog) GetProductByID(cameId int) (*product, error) {
 }
 
 //
-
 func OpenOrCreateFile() *os.File {
 
 	_, err := os.Stat("MyFile.txt")
