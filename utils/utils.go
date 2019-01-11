@@ -19,10 +19,14 @@ func SetCatalogType() CatalogModel.Catalog {
 		fmt.Println("localhost started with FileCatalog")
 		return catalog
 	}
-
 	if useFile == "m" {
 		catalog = CatalogModel.NewInMemoryCatalog()
 		fmt.Println("localhost started with InMemoryCatalog")
+		return catalog
+	}
+	if useFile == "db" {
+		catalog = CatalogModel.NewDbCatalog()
+		fmt.Println("localhost started with DbCatalog")
 		return catalog
 	}
 	return catalog

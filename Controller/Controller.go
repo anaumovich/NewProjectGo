@@ -79,7 +79,6 @@ func ReturnToHomeController(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(302)
 }
 
-//Эта функция выводит изменяемый объект
 func FetchProductController(catalog CatalogModel.Catalog) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cameId, _ := strconv.Atoi(r.URL.Query().Get("product_id"))

@@ -4,7 +4,6 @@ import (
 	"Anton/CatalogModel"
 	"Anton/Controller"
 	"Anton/utils"
-	"fmt"
 	"net/http"
 	"strings"
 )
@@ -36,7 +35,7 @@ func getRoutes(catalog *CatalogModel.Catalog) (m map[string]func(w http.Response
 func createRootHandler(m map[string]func(w http.ResponseWriter, r *http.Request)) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		key := strings.Join([]string{r.Method, r.URL.Path}, "")
-		fmt.Println(key)
+		//fmt.Println(key)
 		if result, ok := m[key]; ok == true {
 			result(w, r)
 		} else {

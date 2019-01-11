@@ -57,7 +57,7 @@ func PrintProductList(catalog CatalogModel.Catalog) string {
 		arr[6] = `</td><td>`
 		arr[7] = strconv.FormatFloat(mep[i].GetPrice(), 'f', 0, 64)
 		arr[8] = `</td><td>`
-		arr[9] = strconv.FormatFloat(mep[i].GetViewPrice(), 'f', 0, 64)
+		arr[9] = "" //strconv.FormatFloat(mep[i].GetViewPrice(), 'f', 0, 64)
 		arr[10] = `</td><td><a href="http://localhost:8080/edit?product_id=` + strconv.Itoa(i) + `"><button>Изменить</button></a></td>`
 		arr[11] = `<td><a href="http://localhost:8080/delete?product_id=` + strconv.Itoa(i) + `"><button>Удалить</button></a></td>`
 		arr[12] = `</tr>`
@@ -204,7 +204,7 @@ func AddPageView(form CreateProductForm, headerName, buttonName string, localWay
 	<br>
     <input type="text" Name="Second" placeholder="Колличество" value="`, form.Count, `">`, renderError(form.PriceError), `
     <br>
-	<input type="text" Name="Third" placeholder="Колличество" value="`, form.Price, `">`, renderError(form.PriceError), `
+	<input type="text" Name="Third" placeholder="Стоимость" value="`, form.Price, `">`, renderError(form.PriceError), `
 	<br>
 	<select Name ="productType" value="productType">
   		<option> Фрукты </option>
