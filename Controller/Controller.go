@@ -29,7 +29,6 @@ func AddProductController(catalog CatalogModel.Catalog) func(http.ResponseWriter
 			_, _ = w.Write([]byte(View.AddPageView(*createProductForm, "Добавьте новый продукт", "Попробовать снова", "")))
 
 		} else {
-
 			product, err := catalog.CreateNewProduct(0, name, count, price, productType)
 
 			if err != nil {

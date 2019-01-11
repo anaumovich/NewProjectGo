@@ -18,9 +18,9 @@ type product struct {
 }
 
 type Catalog interface {
-	CreateNewProduct(int, string, int64, float64, string) (*product, error)
+	CreateNewProduct(id int, name string, count int64, price float64, productType string) (*product, error)
 
-	AddNewProduct(*product) (int, error)
+	AddNewProduct(newProduct *product) (int, error)
 
 	DeleteProductById(int) error
 
@@ -45,8 +45,8 @@ func NewFileCatalog() *FilesCatalog {
 	return &catalog
 }
 
-//
-
+// todo remove this method from Catalog Interface and use Product construct.
+// todo create fn NewProduct(name string, count int64, price float64, productType string)
 func (catalog FilesCatalog) CreateNewProduct(id int, name string, count int64, price float64, productType string) (*product, error) {
 	if name == "" || count < 0 || price < 0 {
 		return nil, errors.New("invalid product data")
@@ -75,8 +75,10 @@ func (catalog FilesCatalog) CreateNewProduct(id int, name string, count int64, p
 	}
 }
 
+// todo use pointer
 func (catalog FilesCatalog) AddNewProduct(product *product) (int, error) {
 
+	// move to method withName getLastId lastId := catalog.getLastId()
 	file := OpenOrCreateFile()
 	reader := bufio.NewReader(file)
 	lastId := 1
@@ -89,6 +91,8 @@ func (catalog FilesCatalog) AddNewProduct(product *product) (int, error) {
 		}
 		lastId++
 	}
+
+	// serialize
 	a := strconv.Itoa(lastId)
 	b := product.name
 	c := strconv.Itoa(int(product.count))
@@ -98,6 +102,7 @@ func (catalog FilesCatalog) AddNewProduct(product *product) (int, error) {
 
 	_, _ = file.Seek(0, 2) // устанавливаем курсор в позицию записи
 
+	// write to file
 	_, _ = file.WriteString(textImpression) //записываем введенную строку
 
 	file.Close()
@@ -305,6 +310,7 @@ func NewInMemoryCatalog() *InMemoryCatalog {
 }
 
 func (catalog InMemoryCatalog) CreateNewProduct(id int, name string, count int64, price float64, productType string) (*product, error) {
+	// todo it's copy paste
 	if name == "" || count < 0 || price < 0 {
 		return nil, errors.New("invalid product data")
 	} else {
@@ -330,7 +336,6 @@ func (catalog InMemoryCatalog) CreateNewProduct(id int, name string, count int64
 
 		return &product, nil
 	}
-
 }
 
 func (catalog InMemoryCatalog) AddNewProduct(product *product) (int, error) {
