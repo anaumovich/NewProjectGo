@@ -1,9 +1,10 @@
 package main
 
 import (
-	"Anton/CatalogModel"
-	"Anton/Controller"
-	"Anton/utils"
+	"AmazingCatalog/CatalogModel"
+	"AmazingCatalog/Controller"
+	"AmazingCatalog/utils"
+	"fmt"
 	"net/http"
 	"strings"
 )
@@ -11,6 +12,7 @@ import (
 func main() {
 
 	Catalog := utils.SetCatalogType()
+	fmt.Println(Catalog)
 
 	handler := createRootHandler(getRoutes(&Catalog))
 

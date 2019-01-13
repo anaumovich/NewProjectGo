@@ -25,9 +25,7 @@ type product struct {
 }
 
 type Catalog interface {
-	CreateNewProduct(id int, name string, count int64, price float64, productType string) (*product, error)
-
-	AddNewProduct(newProduct *product) (int, error)
+	AddNewProduct(*product) (int, error)
 
 	DeleteProductById(int) error
 
@@ -54,21 +52,6 @@ func NewFileCatalog() *FilesCatalog {
 
 // todo remove this method from Catalog Interface and use Product construct.
 // todo create fn NewProduct(name string, count int64, price float64, productType string)
-func (catalog FilesCatalog) CreateNewProduct(id int, name string, count int64, price float64, productType string) (*product, error) {
-	if name == "" || count < 0 || price < 0 {
-		return nil, errors.New("invalid product data")
-	} else {
-		Product := product{}
-
-		Product.id = id
-		Product.name = name
-		Product.count = count
-		Product.price = price
-		Product.productType = productType
-
-		return &Product, nil
-	}
-}
 
 // todo use pointer
 func (catalog FilesCatalog) AddNewProduct(product *product) (int, error) {
@@ -303,23 +286,6 @@ func NewInMemoryCatalog() *InMemoryCatalog {
 	return &catalog
 }
 
-func (catalog InMemoryCatalog) CreateNewProduct(id int, name string, count int64, price float64, productType string) (*product, error) {
-	// todo it's copy paste
-	if name == "" || count < 0 || price < 0 {
-		return nil, errors.New("invalid product data")
-	} else {
-		Product := product{}
-
-		Product.id = id
-		Product.name = name
-		Product.count = count
-		Product.price = price
-		Product.productType = productType
-
-		return &Product, nil
-	}
-}
-
 func (catalog InMemoryCatalog) AddNewProduct(product *product) (int, error) {
 
 	a := len(catalog.products)
@@ -367,28 +333,11 @@ type DbCatalog struct {
 func NewDbCatalog() *DbCatalog {
 
 	catalog := DbCatalog{}
-	// todo ?
 	catalog.products = make(map[int]*product)
-
 	return &catalog
 }
 
-// todo remove
-func (catalog DbCatalog) CreateNewProduct(id int, name string, count int64, price float64, productType string) (*product, error) {
-	if name == "" || count < 0 || price < 0 {
-		return nil, errors.New("invalid product data")
-	} else {
-		Product := product{}
-
-		Product.id = id
-		Product.name = name
-		Product.count = count
-		Product.price = price
-		Product.productType = productType
-
-		return &Product, nil
-	}
-}
+//
 
 func (catalog DbCatalog) AddNewProduct(product *product) (int, error) {
 	db, _ := sql.Open("postgres", "user = postgres password = 123 dbname = Catalog sslmode = disable")
@@ -423,7 +372,7 @@ func (catalog DbCatalog) DeleteProductById(cameId int) error {
 }
 
 func (catalog DbCatalog) GetAll() map[int]*product {
-	// todo move to method
+
 	db, _ := sql.Open("postgres", "user = postgres password = 123 dbname = Catalog sslmode = disable")
 	rows, _ := db.Query("select * from catalog")
 	thisMap := map[int]*product{}
@@ -446,7 +395,7 @@ func (DbCatalog) EditProduct(cameId int, name string, count int64, price float64
 }
 
 func (DbCatalog) GetProductByID(cameId int) (*product, error) {
-	Product := &product{} // todo naming
+	Product := &product{}
 
 	db, _ := sql.Open("postgres", "user = postgres password = 123 dbname = Catalog sslmode = disable")
 
@@ -458,6 +407,23 @@ func (DbCatalog) GetProductByID(cameId int) (*product, error) {
 }
 
 //
+
+func CreateNewProduct(id int, name string, count int64, price float64, productType string) (*product, error) {
+	if name == "" || count < 0 || price < 0 {
+		return nil, errors.New("invalid product data")
+	} else {
+		Product := product{}
+
+		Product.id = id
+		Product.name = name
+		Product.count = count
+		Product.price = price
+		Product.productType = productType
+
+		return &Product, nil
+	}
+}
+
 func OpenOrCreateFile() *os.File {
 
 	_, err := os.Stat("MyFile.txt")

@@ -1,7 +1,7 @@
 package View
 
 import (
-	"Anton/CatalogModel"
+	"AmazingCatalog/CatalogModel"
 	"fmt"
 	"strconv"
 	"strings"

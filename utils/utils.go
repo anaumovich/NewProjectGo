@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"Anton/CatalogModel"
-	"Anton/View"
+	"AmazingCatalog/CatalogModel"
+	"AmazingCatalog/View"
 	"fmt"
 	"net/http"
 	"os"
