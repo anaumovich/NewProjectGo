@@ -9,27 +9,30 @@ import (
 
 var styles = `
 <style>
-	html{
+	html {
 		display: flex; 
 		justify-content: center;
 		}
-	caption{
-		font-weight: bold;
-		margin: 20px 0px 30px 0px;
+
+	h3 {
+		text-align: center;
 		}
-		
-		table {
-			border-collapse: collapse;
-  	  }
-    	td {
-     	  border: 1px solid black; 
+
+	table {
+		border-collapse: collapse;
+  	 	}
+
+    td {
+    	border: 1px solid black; 
   	 }
-		button{
+
+	button{
 		border: 0;
 		width: 100%;
 		color: white;
 		background:deeppink;
 		}
+
 	form{
 		display: flex;
 		flex-direction: column;
@@ -85,6 +88,31 @@ func title(child ...string) string {
 		`</title>`)
 }
 
+func h3(child ...string) string {
+	return fmt.Sprint(`
+	<h3>`,
+		childIterator(child),
+		`</h3>`)
+}
+
+func formInput(form CreateProductForm) string {
+	return fmt.Sprint(`
+	<br>
+	<input type="text" Name="First" placeholder="Наименование" value="`, form.Name, `">`, renderError(form.NameError), `
+	<br>
+	<input type="text" Name="Second" placeholder="Колличество" value="`, form.Count, `">`, renderError(form.CountError), `
+	<br>
+	<input type="text" Name="Third" placeholder="Стоимость" value="`, form.Price, `">`, renderError(form.PriceError), `
+	<br>`)
+}
+
+func form(child ...string) string {
+	return fmt.Sprint(`
+	<form action="http://localhost:8080/`,
+		childIterator(child),
+		`</form>`)
+}
+
 func childIterator(str []string) string {
 	newStr := ""
 	for i := range str {
@@ -124,9 +152,9 @@ func PrintProductList(catalog CatalogModel.Catalog) string {
 			head(
 				title(`Окно результатов`),
 				styles),
-			body(`<div>
-			<table>
-			<caption>Список товаров</caption>
+			body(
+				h3("Список товаров"), `
+				<table>
 				<tr>
 					<td>Id</td>
 					<td>Наименование</td>
@@ -145,48 +173,34 @@ func PrintProductList(catalog CatalogModel.Catalog) string {
 }
 
 // todo pass by ref
-func AddPageView(form CreateProductForm, headerName, buttonName string) string {
+func AddPageView(productForm CreateProductForm, headerName, buttonName string) string {
 	return fmt.Sprint(
 		html(
 			head(
-				title("Добавление продукта"),
+				title(`Добавление продукта`),
 				styles),
-			body(`
-			<h3>`, headerName, ` </h3>
-			<form action="http://localhost:8080/add" method="POST">
-				 <br>
-				<input type="text" Name="First" placeholder="Наименование" value="`, form.Name, `">`, renderError(form.NameError), `
-				 <br>
-				<input type="text" Name="Second" placeholder="Колличество" value="`, form.Count, `">`, renderError(form.PriceError), `
-				 <br>
-				<input type="text" Name="Third" placeholder="Стоимость" value="`, form.Price, `">`, renderError(form.PriceError), `
-			 	 <br>
-				<select Name ="productType" value="productType">
-					<option> Фрукты </option>
-					<option> Овощи </option>
-					<option> Мясо </option>
-				</select> 
-				 <br>
-				<a href="http://localhost:8080/list"><button Name = "product_id" >`, buttonName, `</button></a>
-			</form>`)))
+			body(
+				h3(headerName),
+				form(`add"  method="POST">`,
+					formInput(productForm), `
+					<select Name ="productType" value="productType">
+						<option> Фрукты </option>
+						<option> Овощи </option>
+						<option> Мясо </option>
+					</select> 
+					 <br>
+					<a href="http://localhost:8080/list"><button Name = "product_id" >`, buttonName, `</button></a>`))))
 }
 
-func EditPageView(form CreateProductForm, buttonName string, id int) string {
+func EditPageView(productForm CreateProductForm, buttonName string, id int) string {
 	return fmt.Sprint(
 		html(
 			head(
 				title(`Редактирвание продукта`),
 				styles),
-			body(`
-			<h3>Измените продукт</h3>
-			<form action="http://localhost:8080/edit?product_id=`+strconv.Itoa(id)+` " method="POST">
-		    	 <br>
-				<input type="text" Name="First" placeholder="Наименование" value="`, form.Name, `">`, renderError(form.NameError), `
-				 <br>
-				<input type="text" Name="Second" placeholder="Колличество" value="`, form.Count, `">`, renderError(form.CountError), `
-				 <br>
-				<input type="text" Name="Third" placeholder="Стоимость" value="`, form.Price, `">`, renderError(form.PriceError), `
-			 	<br>
-				<button Name = "product_id" value ="`+strconv.Itoa(id)+`">`, buttonName, `</button>
-			</form>`)))
+			body(
+				h3(`Измените продукт`),
+				form(`edit?product_id=`+strconv.Itoa(id)+`" method="POST">`,
+					formInput(productForm),
+					`<button Name = "product_id" value ="`+strconv.Itoa(id)+`">`+buttonName+`</button>`))))
 }
