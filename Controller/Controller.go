@@ -2,14 +2,15 @@ package Controller
 
 import (
 	"AmazingCatalog/CatalogModel"
-	"AmazingCatalog/View"
 	"AmazingCatalog/utils"
+	"AmazingCatalog/view"
+	"fmt"
 	"net/http"
 	"strconv"
 )
 
 func AddFormController(w http.ResponseWriter, _ *http.Request) {
-	_, _ = w.Write([]byte(View.AddPageView(View.CreateProductForm{}, "Добавьте новый продукт", "Добавить")))
+	_, _ = w.Write([]byte(view.AddPageView(view.CreateProductForm{}, "Добавьте новый продукт", "Добавить")))
 }
 
 func AddProductController(catalog CatalogModel.Catalog) func(http.ResponseWriter, *http.Request) {
@@ -21,11 +22,11 @@ func AddProductController(catalog CatalogModel.Catalog) func(http.ResponseWriter
 		price, priceErr := strconv.ParseFloat(r.FormValue("Third"), 64)
 		productType := r.FormValue("productType")
 
-		hasError, createProductForm := utils.CheckError(*r, name, countErr, priceErr)
+		hasError, createProductForm := utils.CheckInputError(*r, name, countErr, priceErr)
 
 		if hasError {
 
-			_, _ = w.Write([]byte(View.AddPageView(*createProductForm, "Добавьте новый продукт", "Попробовать снова")))
+			_, _ = w.Write([]byte(view.AddPageView(*createProductForm, "Добавьте новый продукт", "Попробовать снова")))
 
 		} else {
 			product, err := CatalogModel.CreateNewProduct(name, count, price, productType)
@@ -36,7 +37,6 @@ func AddProductController(catalog CatalogModel.Catalog) func(http.ResponseWriter
 				_, _ = catalog.AddNewProduct(product)
 				w.Header().Set("Location", "http://localhost:8080/list")
 				w.WriteHeader(302)
-
 			}
 		}
 	}
@@ -50,13 +50,13 @@ func EditProductController(catalog CatalogModel.Catalog) func(http.ResponseWrite
 		count, countErr := strconv.ParseInt(r.FormValue("Second"), 10, 64)
 		price, priceErr := strconv.ParseFloat(r.FormValue("Third"), 64)
 
-		hasError, createProductForm := utils.CheckError(*r, name, countErr, priceErr)
+		hasError, createProductForm := utils.CheckInputError(*r, name, countErr, priceErr)
 
 		id, _ := strconv.Atoi(r.FormValue("product_id"))
 
 		if hasError {
 			if id != 0 {
-				_, _ = w.Write([]byte(View.EditPageView(*createProductForm, "Изменить", id)))
+				_, _ = w.Write([]byte(view.EditPageView(*createProductForm, "Изменить", id)))
 			}
 		} else {
 			_, _ = catalog.EditProduct(id, name, count, price) //!!!!!!!!
@@ -68,7 +68,10 @@ func EditProductController(catalog CatalogModel.Catalog) func(http.ResponseWrite
 
 func PrintListController(catalog CatalogModel.Catalog) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		_, _ = w.Write([]byte(View.PrintProductList(catalog)))
+		_, err := w.Write([]byte(view.PrintProductList(catalog)))
+		if err != nil {
+			fmt.Println("cannot print product list")
+		}
 	}
 }
 
@@ -79,25 +82,36 @@ func ReturnToHomeController(w http.ResponseWriter, _ *http.Request) {
 
 func FetchProductController(catalog CatalogModel.Catalog) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		cameId, _ := strconv.Atoi(r.URL.Query().Get("product_id"))
-
-		product, _ := catalog.GetProductByID(cameId)
-
-		productForm := View.CreateProductForm{}
+		cameId, err := strconv.Atoi(r.URL.Query().Get("product_id"))
+		if err != nil {
+			fmt.Println("cannot get product id")
+		}
+		product, err := catalog.GetProductByID(cameId)
+		if err != nil {
+			fmt.Println("cannot get product bt id")
+		}
+		productForm := view.CreateProductForm{}
 		productForm.Name = product.GetName()
 		productForm.Count = strconv.Itoa(int(product.GetCount()))
 		productForm.Price = strconv.Itoa(int(product.GetPrice()))
 
-		_, _ = w.Write([]byte(View.EditPageView(productForm, "Изменить", cameId)))
+		_, err = w.Write([]byte(view.EditPageView(productForm, "Изменить", cameId)))
+		if err != nil {
+			fmt.Println("cannot edit product")
+		}
 	}
 }
 
 func DeleteProductController(catalog CatalogModel.Catalog) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		id, _ := strconv.Atoi(r.URL.Query().Get("product_id"))
-
-		_ = catalog.DeleteProductById(id)
-
+		id, err := strconv.Atoi(r.URL.Query().Get("product_id"))
+		if err != nil {
+			fmt.Println("cannot get product id")
+		}
+		err = catalog.DeleteProductById(id)
+		if err != nil {
+			fmt.Println("cannot delete product by id")
+		}
 		http.Redirect(w, r, "http://localhost:8080/list", http.StatusFound)
 	}
 }

@@ -1,4 +1,4 @@
-package View
+package view
 
 import (
 	"AmazingCatalog/CatalogModel"
@@ -95,6 +95,48 @@ func h3(child ...string) string {
 		`</h3>`)
 }
 
+func table(child ...string) string {
+	return fmt.Sprint(`
+	<table>`,
+		childIterator(child),
+		`</table>`)
+}
+
+func td(child ...string) string {
+	return fmt.Sprint(`
+	<td>`,
+		childIterator(child),
+		`</td>`)
+}
+
+func tr(child ...string) string {
+	return fmt.Sprint(`
+	<tr>`,
+		childIterator(child),
+		`</tr>`)
+}
+
+func selects(child ...string) string {
+	return fmt.Sprint(`
+	<select`,
+		childIterator(child),
+		`</select>`)
+}
+
+func option(child ...string) string {
+	return fmt.Sprint(`
+	<option>`,
+		childIterator(child),
+		`</option>`)
+}
+
+func button(child ...string) string {
+	return fmt.Sprint(`
+	<button`,
+		childIterator(child),
+		`</button>`)
+}
+
 func formInput(form CreateProductForm) string {
 	return fmt.Sprint(`
 	<br>
@@ -122,9 +164,8 @@ func childIterator(str []string) string {
 	return newStr
 }
 
-func PrintProductList(catalog CatalogModel.Catalog) string {
-
-	b := ""
+func TransformMapToString(catalog CatalogModel.Catalog) string {
+	str := ""
 	mep := catalog.GetAll()
 
 	for i := range mep {
@@ -144,32 +185,32 @@ func PrintProductList(catalog CatalogModel.Catalog) string {
 		arr[11] = `<td><a href="http://localhost:8080/delete?product_id=` + strconv.Itoa(i) + `"><button>Удалить</button></a></td>`
 		arr[12] = `</tr>`
 
-		b += strings.Join(arr, "")
+		str += strings.Join(arr, "")
 	}
+	return str
+}
 
+func PrintProductList(catalog CatalogModel.Catalog) string {
 	return fmt.Sprint(
 		html(
 			head(
 				title(`Окно результатов`),
 				styles),
 			body(
-				h3("Список товаров"), `
-				<table>
-				<tr>
-					<td>Id</td>
-					<td>Наименование</td>
-					<td>Колличество</td>
-					<td>Цена</td>
-					<td>Стоимость с учетом скидки</td>
-					<td>Редактировать</td>
-					<td>Удалить</td>
-				</tr>
-				`, b, `
-			</table>
-				<br>
-			<form action="http://localhost:8080/list" method="POST">
-				<a href="http://localhost:8080/list"><button>Добавить</button> </a>
-			</form>`)))
+				h3("Список товаров"),
+				table(
+					tr(
+						td(`Id`),
+						td(`Наименование`),
+						td(`Колличество`),
+						td(`Цена`),
+						td(`Стоимость с учетом скидки`),
+						td(`Редактировать`),
+						td(`Удалить`)),
+					TransformMapToString(catalog)), `
+				<br>`,
+				form(`list" method="POST">`,
+					button(`>Добавить`)))))
 }
 
 // todo pass by ref
@@ -182,14 +223,13 @@ func AddPageView(productForm CreateProductForm, headerName, buttonName string) s
 			body(
 				h3(headerName),
 				form(`add"  method="POST">`,
-					formInput(productForm), `
-					<select Name ="productType" value="productType">
-						<option> Фрукты </option>
-						<option> Овощи </option>
-						<option> Мясо </option>
-					</select> 
-					 <br>
-					<a href="http://localhost:8080/list"><button Name = "product_id" >`, buttonName, `</button></a>`))))
+					formInput(productForm),
+					selects(` Name ="productType" value="productType">`,
+						option(`Фрукты`),
+						option(`Овощи`),
+						option(`Мясо`)), `
+					<br>`,
+					button(` Name = "product_id" >`+buttonName)))))
 }
 
 func EditPageView(productForm CreateProductForm, buttonName string, id int) string {
@@ -202,5 +242,5 @@ func EditPageView(productForm CreateProductForm, buttonName string, id int) stri
 				h3(`Измените продукт`),
 				form(`edit?product_id=`+strconv.Itoa(id)+`" method="POST">`,
 					formInput(productForm),
-					`<button Name = "product_id" value ="`+strconv.Itoa(id)+`">`+buttonName+`</button>`))))
+					button(` Name = "product_id" value ="`+strconv.Itoa(id)+`">`+buttonName)))))
 }

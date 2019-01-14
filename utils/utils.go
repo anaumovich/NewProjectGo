@@ -2,7 +2,7 @@ package utils
 
 import (
 	"AmazingCatalog/CatalogModel"
-	"AmazingCatalog/View"
+	"AmazingCatalog/view"
 	"fmt"
 	"net/http"
 	"os"
@@ -34,11 +34,11 @@ func SetCatalogType() CatalogModel.Catalog {
 
 //
 
-func CheckError(r http.Request, name string, countErr, priceErr error) (hasError bool, form *View.CreateProductForm) {
+func CheckInputError(r http.Request, name string, countErr, priceErr error) (hasError bool, form *view.CreateProductForm) {
 
 	hasError = false
 
-	createProductForm := View.CreateProductForm{}
+	createProductForm := view.CreateProductForm{}
 
 	createProductForm.Name = name
 	createProductForm.Count = r.FormValue("Second")
@@ -46,21 +46,18 @@ func CheckError(r http.Request, name string, countErr, priceErr error) (hasError
 
 	if name == "" {
 		createProductForm.NameError = "Ошибка имени"
-
 		hasError = true
 	}
 
 	if countErr != nil {
 		createProductForm.CountError = "Ошибка колличества"
 		createProductForm.Count = r.FormValue("Second")
-
 		hasError = true
 	}
 
 	if priceErr != nil {
 		createProductForm.PriceError = "Ошибка стоимости"
 		createProductForm.Price = r.FormValue("Third")
-
 		hasError = true
 	}
 
