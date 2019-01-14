@@ -14,15 +14,15 @@ type FilesCatalog struct {
 func NewFileCatalog() *FilesCatalog {
 
 	catalog := FilesCatalog{}
-	catalog.products = make(map[int]*product)
+	//catalog.products = make(map[int]*product)
 
 	return &catalog
 }
 
 // todo remove this method from Catalog Interface and use Product construct.
 // todo create fn NewProduct(name string, count int64, price float64, productType string)
-
 // todo use pointer
+
 func (catalog FilesCatalog) AddNewProduct(product *product) (int, error) {
 
 	// move to method withName getLastId lastId := catalog.getLastId()

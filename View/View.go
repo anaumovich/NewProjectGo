@@ -13,12 +13,27 @@ var styles = `
 		display: flex; 
 		justify-content: center;
 		}
-	button{
+	caption{
+		font-weight: bold;
+		margin: 20px 0px 30px 0px;
+		}
+		
+		table {
+			border-collapse: collapse;
+  	  }
+    	td {
+     	  border: 1px solid black; 
+  	 }
+		button{
 		border: 0;
 		width: 100%;
 		color: white;
 		background:deeppink;
 		}
+	form{
+		display: flex;
+		flex-direction: column;
+	}
 	
 </style>`
 
@@ -40,67 +55,43 @@ func renderError(err string) string {
 	return "<span style='color:red'>" + err + "</span>"
 }
 
-func resultPageStyles() string {
-	return `<style type="text/css">
-		html {
-			display: flex; 
-			justify-content: center;
-			flex-direction: row;
-		}
-		body {
-			display: flex;
-			flex-direction: row;
-		}
-		caption{
-		font-weight: bold;
-		margin: 20px 0px 30px 0px;
-		}
-		form{
-			display: flex; 
-			flex-direction: column;
-			justify-content: center;
-		}
-		table {
-			width: 100%;
-			border-collapse: collapse;
-			margin: auto;
-  	  }
-    	td {
-     	  border: 1px solid black; 
-  	 }
-		button{
-		border: 0;
-		width: 100%;
-		color: white;
-		background:deeppink;
-		}
-		input{
-		border: 0;
-		width: 100%;
-		color: white;
-		background:deeppink;
-		}
-		#table {
-			margin-left: 100px;
-			width: 150px;
-			
-		}
-		#table tr td input{
-			color: black;
-			background: none;
-		}
-		
-		select{
-			width: 100%;
-			text-align-last: center;
-		}
-
-  	 </style>`
+func html(child ...string) string {
+	return fmt.Sprint(`
+	<!DOCTYPE html>
+		<html>`,
+		childIterator(child),
+		`</html>`)
 }
 
-func html(child ...string) string {
-	return fmt.Sprint(`<!DOCTYPE html>
-<html>`, child, `</html>`)
+func head(child ...string) string {
+	return fmt.Sprint(`
+	<head>
+    	<meta charset="utf-8">`,
+		childIterator(child),
+		`</head>`)
+}
+
+func body(child ...string) string {
+	return fmt.Sprint(`
+	<body>`,
+		childIterator(child),
+		`</body>`)
+}
+
+func title(child ...string) string {
+	return fmt.Sprint(`
+	<title>`,
+		childIterator(child),
+		`</title>`)
+}
+
+func childIterator(str []string) string {
+	newStr := ""
+	for i := range str {
+		newStr += str[i]
+	}
+
+	return newStr
 }
 
 func PrintProductList(catalog CatalogModel.Catalog) string {
@@ -132,12 +123,10 @@ func PrintProductList(catalog CatalogModel.Catalog) string {
 		html(
 			head(
 				title(`Окно результатов`),
-				resultPageStyles(),
-			),
-			`<body>
-		<div>
-		<table>
-		<caption>Список товаров</caption>	
+				styles),
+			body(`<div>
+			<table>
+			<caption>Список товаров</caption>
 				<tr>
 					<td>Id</td>
 					<td>Наименование</td>
@@ -146,113 +135,58 @@ func PrintProductList(catalog CatalogModel.Catalog) string {
 					<td>Стоимость с учетом скидки</td>
 					<td>Редактировать</td>
 					<td>Удалить</td>
-				</tr>  
+				</tr>
 				`, b, `
-		</table>
-<br>
-		<form action="http://localhost:8080/list" method="POST">
-			<input  type="submit" value="Добавить">
-		</form>
-</div><div>
-		<form action="http://localhost:8080/set " method="POST">
-		<table id = "table">
-		<caption>Снизить стоимость</caption>	
-				<tr>
-					<td>
-					<select Name ="discountType" >
-  					<option> Фрукты </option>
-  					<option> Овощи </option>
-					<option> Мясо </option>
-					</select> 
-					</td>
-				</tr>
-				<tr>
-					<td><input  type="number" Name="discount"></td>
-				</tr>
-				<tr>
-					<td><a href="http://localhost:8080/set?"><button>Применить</button></a></td>
-				</tr>
-		</table>
-		</form>
-</div>
-		
-	
-</body>`,
-		))
-}
-
-func title(child ...string) string {
-	return fmt.Sprint(`<title>`, child, `</title>`)
-}
-
-func head(child ...string) string {
-	return fmt.Sprint(`<head>
-    <meta charset="utf-8">
-`, child, `
-    </head>`)
+			</table>
+				<br>
+			<form action="http://localhost:8080/list" method="POST">
+				<a href="http://localhost:8080/list"><button>Добавить</button> </a>
+			</form>`)))
 }
 
 // todo pass by ref
-func AddPageView(form CreateProductForm, headerName, buttonName string, localWay string) string {
-	return fmt.Sprint(`
-<!DOCTYPE html>
-<html> 
-<style>
-	html{
-		display: flex; 
-		justify-content: center;
-		}
-	button{
-		border: 0;
-		width: 100%;
-		color: white;
-		background:deeppink;
-		}
-</style>
-`, head(title(`Добавление продукта`)), `
-<body>
-<h3>`, headerName, ` </h3>
-<form action="http://localhost:8080/add`, localWay, ` " method="POST" style="display: flex; flex-direction: column;">
-	<br>
-    <input type="text" Name="First" placeholder="Наименование" value="`, form.Name, `">`, renderError(form.NameError), `
-	<br>
-    <input type="text" Name="Second" placeholder="Колличество" value="`, form.Count, `">`, renderError(form.PriceError), `
-    <br>
-	<input type="text" Name="Third" placeholder="Стоимость" value="`, form.Price, `">`, renderError(form.PriceError), `
-	<br>
-	<select Name ="productType" value="productType">
-  		<option> Фрукты </option>
-  		<option> Овощи </option>
-		<option> Мясо </option>
-	</select> 
-	<br>
-	<a href="http://localhost:8080/list"><button Name = "product_id" >`, buttonName, `</button></a>
-
-</form>
-</body>
-</html>
-`)
+func AddPageView(form CreateProductForm, headerName, buttonName string) string {
+	return fmt.Sprint(
+		html(
+			head(
+				title("Добавление продукта"),
+				styles),
+			body(`
+			<h3>`, headerName, ` </h3>
+			<form action="http://localhost:8080/add" method="POST">
+				 <br>
+				<input type="text" Name="First" placeholder="Наименование" value="`, form.Name, `">`, renderError(form.NameError), `
+				 <br>
+				<input type="text" Name="Second" placeholder="Колличество" value="`, form.Count, `">`, renderError(form.PriceError), `
+				 <br>
+				<input type="text" Name="Third" placeholder="Стоимость" value="`, form.Price, `">`, renderError(form.PriceError), `
+			 	 <br>
+				<select Name ="productType" value="productType">
+					<option> Фрукты </option>
+					<option> Овощи </option>
+					<option> Мясо </option>
+				</select> 
+				 <br>
+				<a href="http://localhost:8080/list"><button Name = "product_id" >`, buttonName, `</button></a>
+			</form>`)))
 }
 
-func EditPageView(form CreateProductForm, headerName, buttonName string, id int) string {
-	return fmt.Sprint(`
-<!DOCTYPE html>
-<html> 
-`, styles, head(title(`Редактирвание продукта`)), `
-<body>
-<h3>`, headerName, ` </h3>
-<form action="http://localhost:8080/edit?product_id=`+strconv.Itoa(id)+` " method="POST" style="display: flex; flex-direction: column;">
-	<br>
-    <input type="text" Name="First" placeholder="Наименование" value="`, form.Name, `">`, renderError(form.NameError), `
-	<br>
-    <input type="text" Name="Second" placeholder="Колличество" value="`, form.Count, `">`, renderError(form.CountError), `
-    <br>
-	<input type="text" Name="Third" placeholder="Колличество" value="`, form.Price, `">`, renderError(form.PriceError), `
-	<br>
-	<button Name = "product_id" value ="`+strconv.Itoa(id)+`">`, buttonName, `</button>
-
-</form>
-</body>
-</html>
-`)
+func EditPageView(form CreateProductForm, buttonName string, id int) string {
+	return fmt.Sprint(
+		html(
+			head(
+				title(`Редактирвание продукта`),
+				styles),
+			body(`
+			<h3>Измените продукт</h3>
+			<form action="http://localhost:8080/edit?product_id=`+strconv.Itoa(id)+` " method="POST">
+		    	 <br>
+				<input type="text" Name="First" placeholder="Наименование" value="`, form.Name, `">`, renderError(form.NameError), `
+				 <br>
+				<input type="text" Name="Second" placeholder="Колличество" value="`, form.Count, `">`, renderError(form.CountError), `
+				 <br>
+				<input type="text" Name="Third" placeholder="Стоимость" value="`, form.Price, `">`, renderError(form.PriceError), `
+			 	<br>
+				<button Name = "product_id" value ="`+strconv.Itoa(id)+`">`, buttonName, `</button>
+			</form>`)))
 }

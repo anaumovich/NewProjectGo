@@ -3,21 +3,15 @@ package CatalogModel
 import (
 	"database/sql"
 	"errors"
-	"fmt"
 )
 
-type DbCatalog struct {
-	products map[int]*product
-}
+type DbCatalog struct{}
 
 func NewDbCatalog() *DbCatalog {
 
 	catalog := DbCatalog{}
-	catalog.products = make(map[int]*product)
 	return &catalog
 }
-
-//
 
 func (catalog DbCatalog) AddNewProduct(product *product) (int, error) {
 	db, _ := sql.Open("postgres", "user = postgres password = 123 dbname = Catalog sslmode = disable")
@@ -69,7 +63,6 @@ func (catalog DbCatalog) GetAll() map[int]*product {
 
 func (DbCatalog) EditProduct(cameId int, name string, count int64, price float64) (int, error) {
 	db, _ := sql.Open("postgres", "user = postgres password = 123 dbname = Catalog sslmode = disable")
-	fmt.Println(cameId)
 	_ = db.QueryRow("update  catalog  set name = $1,count= $2,price= $3 where id = $4", name, count, price, cameId)
 	return cameId, errors.New("can't edit product")
 }

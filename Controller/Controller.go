@@ -4,13 +4,12 @@ import (
 	"AmazingCatalog/CatalogModel"
 	"AmazingCatalog/View"
 	"AmazingCatalog/utils"
-	"fmt"
 	"net/http"
 	"strconv"
 )
 
-func AddFormController(w http.ResponseWriter, r *http.Request) {
-	_, _ = w.Write([]byte(View.AddPageView(View.CreateProductForm{}, "Добавьте новый продукт", "Добавить", "")))
+func AddFormController(w http.ResponseWriter, _ *http.Request) {
+	_, _ = w.Write([]byte(View.AddPageView(View.CreateProductForm{}, "Добавьте новый продукт", "Добавить")))
 }
 
 func AddProductController(catalog CatalogModel.Catalog) func(http.ResponseWriter, *http.Request) {
@@ -26,10 +25,10 @@ func AddProductController(catalog CatalogModel.Catalog) func(http.ResponseWriter
 
 		if hasError {
 
-			_, _ = w.Write([]byte(View.AddPageView(*createProductForm, "Добавьте новый продукт", "Попробовать снова", "")))
+			_, _ = w.Write([]byte(View.AddPageView(*createProductForm, "Добавьте новый продукт", "Попробовать снова")))
 
 		} else {
-			product, err := CatalogModel.CreateNewProduct(0, name, count, price, productType)
+			product, err := CatalogModel.CreateNewProduct(name, count, price, productType)
 
 			if err != nil {
 
@@ -57,7 +56,7 @@ func EditProductController(catalog CatalogModel.Catalog) func(http.ResponseWrite
 
 		if hasError {
 			if id != 0 {
-				_, _ = w.Write([]byte(View.EditPageView(*createProductForm, "Измените продукт", "Изменить", id)))
+				_, _ = w.Write([]byte(View.EditPageView(*createProductForm, "Изменить", id)))
 			}
 		} else {
 			_, _ = catalog.EditProduct(id, name, count, price) //!!!!!!!!
@@ -73,7 +72,7 @@ func PrintListController(catalog CatalogModel.Catalog) func(http.ResponseWriter,
 	}
 }
 
-func ReturnToHomeController(w http.ResponseWriter, r *http.Request) {
+func ReturnToHomeController(w http.ResponseWriter, _ *http.Request) {
 	w.Header().Set("Location", "http://localhost:8080/add")
 	w.WriteHeader(302)
 }
@@ -89,7 +88,7 @@ func FetchProductController(catalog CatalogModel.Catalog) func(http.ResponseWrit
 		productForm.Count = strconv.Itoa(int(product.GetCount()))
 		productForm.Price = strconv.Itoa(int(product.GetPrice()))
 
-		_, _ = w.Write([]byte(View.EditPageView(productForm, "Измените продукт", "Изменить", cameId)))
+		_, _ = w.Write([]byte(View.EditPageView(productForm, "Изменить", cameId)))
 	}
 }
 
@@ -103,6 +102,7 @@ func DeleteProductController(catalog CatalogModel.Catalog) func(http.ResponseWri
 	}
 }
 
+/*
 func SetDiscountController(catalog CatalogModel.Catalog) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		productType := r.FormValue("discountType")
@@ -116,3 +116,4 @@ func SetDiscountController(catalog CatalogModel.Catalog) func(http.ResponseWrite
 		http.Redirect(w, r, "http://localhost:8080/list", http.StatusFound)
 	}
 }
+*/

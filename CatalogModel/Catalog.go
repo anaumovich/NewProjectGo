@@ -8,10 +8,10 @@ import (
 )
 
 // todo make public
-// use constructor for new inst creation move logic of validation to constructor
+// todo use constructor for new inst creation move logic of validation to constructor
 
-// Rule: new product don't has id. New it's - mean not saved.
-// when user call catalog.AddNewProduct() catalog set id to product
+// todo Rule: new product don't has id. New it's - mean not saved.
+// todo when user call catalog.AddNewProduct() catalog set id to product
 
 type product struct {
 	id                int
@@ -49,13 +49,12 @@ type Catalog interface {
 	GetProductByID(int) (*product, error)
 }
 
-func CreateNewProduct(id int, name string, count int64, price float64, productType string) (*product, error) {
+func CreateNewProduct(name string, count int64, price float64, productType string) (*product, error) {
 	if name == "" || count < 0 || price < 0 {
 		return nil, errors.New("invalid product data")
 	} else {
 		Product := product{}
 
-		Product.id = id
 		Product.name = name
 		Product.count = count
 		Product.price = price
