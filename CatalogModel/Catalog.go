@@ -13,54 +13,54 @@ import (
 // todo Rule: new product don't has id. New it's - mean not saved.
 // todo when user call catalog.AddNewProduct() catalog set id to product
 
-type product struct {
+type Product struct {
 	id                int
 	name, productType string
 	count             int64
 	price             float64
 }
 
-func (p product) GetId() int {
+func (p Product) GetId() int {
 	id := p.id
 	return id
 }
-func (p product) GetName() string {
+func (p Product) GetName() string {
 	name := p.name
 	return name
 }
-func (p product) GetCount() int64 {
+func (p Product) GetCount() int64 {
 	count := p.count
 	return count
 }
-func (p product) GetPrice() float64 {
+func (p Product) GetPrice() float64 {
 	price := p.price
 	return price
 }
 
 type Catalog interface {
-	AddNewProduct(*product) (int, error)
+	AddNewProduct(*Product) (int, error)
 
 	DeleteProductById(int) error
 
-	GetAll() map[int]*product
+	GetAll() map[int]*Product
 
 	EditProduct(int, string, int64, float64) (int, error)
 
-	GetProductByID(int) (*product, error)
+	GetProductByID(int) (*Product, error)
 }
 
-func CreateNewProduct(name string, count int64, price float64, productType string) (*product, error) {
+func CreateNewProduct(name string, count int64, price float64, productType string) (*Product, error) {
 	if name == "" || count < 0 || price < 0 {
 		return nil, errors.New("invalid product data")
 	} else {
-		Product := product{}
+		product := Product{}
 
-		Product.name = name
-		Product.count = count
-		Product.price = price
-		Product.productType = productType
+		product.name = name
+		product.count = count
+		product.price = price
+		product.productType = productType
 
-		return &Product, nil
+		return &product, nil
 	}
 }
 

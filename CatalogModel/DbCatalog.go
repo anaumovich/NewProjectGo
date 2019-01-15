@@ -13,7 +13,7 @@ func NewDbCatalog() *DbCatalog {
 	return &catalog
 }
 
-func (catalog DbCatalog) AddNewProduct(product *product) (int, error) {
+func (catalog DbCatalog) AddNewProduct(product *Product) (int, error) {
 	db, _ := sql.Open("postgres", "user = postgres password = 123 dbname = Catalog sslmode = disable")
 	id := 0
 	row := db.QueryRow("select max(id) from catalog")
@@ -45,14 +45,14 @@ func (catalog DbCatalog) DeleteProductById(cameId int) error {
 	return errors.New("can't edit product")
 }
 
-func (catalog DbCatalog) GetAll() map[int]*product {
+func (catalog DbCatalog) GetAll() map[int]*Product {
 
 	db, _ := sql.Open("postgres", "user = postgres password = 123 dbname = Catalog sslmode = disable")
 	rows, _ := db.Query("select * from catalog")
-	thisMap := map[int]*product{}
+	thisMap := map[int]*Product{}
 	i := 1
 	for rows.Next() {
-		product := product{}
+		product := Product{}
 		_ = rows.Scan(&product.id, &product.name, &product.count, &product.price, &product.productType)
 		thisMap[i] = &product
 		i++
@@ -67,14 +67,14 @@ func (DbCatalog) EditProduct(cameId int, name string, count int64, price float64
 	return cameId, errors.New("can't edit product")
 }
 
-func (DbCatalog) GetProductByID(cameId int) (*product, error) {
-	Product := &product{}
+func (DbCatalog) GetProductByID(cameId int) (*Product, error) {
+	product := &Product{}
 
 	db, _ := sql.Open("postgres", "user = postgres password = 123 dbname = Catalog sslmode = disable")
 
 	row := db.QueryRow("select id,name,count,price,producttype from catalog where id = $1", cameId)
 
-	_ = row.Scan(&Product.id, &Product.name, &Product.count, &Product.price, &Product.productType)
+	_ = row.Scan(&product.id, &product.name, &product.count, &product.price, &product.productType)
 	_ = db.Close()
-	return Product, errors.New("product not found")
+	return product, errors.New("product not found")
 }

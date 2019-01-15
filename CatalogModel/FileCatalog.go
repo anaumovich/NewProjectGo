@@ -8,7 +8,7 @@ import (
 )
 
 type FilesCatalog struct {
-	products map[int]*product
+	products map[int]*Product
 }
 
 func NewFileCatalog() *FilesCatalog {
@@ -23,7 +23,7 @@ func NewFileCatalog() *FilesCatalog {
 // todo create fn NewProduct(name string, count int64, price float64, productType string)
 // todo use pointer
 
-func (catalog FilesCatalog) AddNewProduct(product *product) (int, error) {
+func (catalog FilesCatalog) AddNewProduct(product *Product) (int, error) {
 
 	// move to method withName getLastId lastId := catalog.getLastId()
 	file := OpenOrCreateFile()
@@ -114,7 +114,7 @@ func (catalog FilesCatalog) DeleteProductById(cameId int) error {
 	return errors.New("can't edit product")
 }
 
-func (catalog FilesCatalog) GetAll() map[int]*product {
+func (catalog FilesCatalog) GetAll() map[int]*Product {
 
 	file := OpenOrCreateFile()
 
@@ -204,13 +204,13 @@ func (FilesCatalog) EditProduct(cameId int, name string, count int64, price floa
 	return cameId, errors.New("can't edit product")
 }
 
-func (FilesCatalog) GetProductByID(cameId int) (*product, error) {
+func (FilesCatalog) GetProductByID(cameId int) (*Product, error) {
 
 	file := OpenOrCreateFile()
 	reader := bufio.NewReader(file)
 	_, _ = file.Seek(0, 0)
 
-	Product := &product{}
+	product := &Product{}
 
 	for {
 		line, _, _ := reader.ReadLine()
@@ -232,12 +232,12 @@ func (FilesCatalog) GetProductByID(cameId int) (*product, error) {
 			count, _ := strconv.ParseInt(string(line[n+1:c]), 10, 64)
 			price, _ := strconv.ParseFloat(string(line[c+1:]), 64)
 
-			Product.id = id
-			Product.name = name
-			Product.count = count
-			Product.price = price
+			product.id = id
+			product.name = name
+			product.count = count
+			product.price = price
 
 		}
 	}
-	return Product, errors.New("product not found")
+	return product, errors.New("product not found")
 }
