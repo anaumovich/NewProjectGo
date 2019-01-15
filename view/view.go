@@ -244,7 +244,3 @@ func EditPageView(productForm CreateProductForm, buttonName string, id int) stri
 					formInput(productForm),
 					button(` Name = "product_id" value ="`+strconv.Itoa(id)+`">`+buttonName)))))
 }
-
-func somefunc() {
-
-}
