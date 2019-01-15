@@ -1,24 +1,33 @@
 package CatalogModel
 
-import "errors"
+import (
+	"errors"
+)
 
 type InMemoryCatalog struct {
 	products map[int]*Product
 }
 
-func NewInMemoryCatalog() *InMemoryCatalog {
+type InMemoryCatalogFactory struct {
+}
 
+func NewInMemoryCatalogFactory() InMemoryCatalogFactory {
+	InMemoryCatalogFactory := InMemoryCatalogFactory{}
+
+	return InMemoryCatalogFactory
+}
+
+func (InMemoryCatalogFactory) CreateCatalog() Catalog {
 	catalog := InMemoryCatalog{}
 	catalog.products = make(map[int]*Product)
-
 	return &catalog
 }
 
+//
 func (catalog InMemoryCatalog) AddNewProduct(product *Product) (int, error) {
-
 	a := len(catalog.products)
 	product.id = a + 1
-	catalog.products[a+1] = product
+	catalog.products[product.id] = product
 
 	return 0, errors.New("cannot add product")
 }

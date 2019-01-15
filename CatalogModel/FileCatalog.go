@@ -11,12 +11,17 @@ type FilesCatalog struct {
 	products map[int]*Product
 }
 
-func NewFileCatalog() *FilesCatalog {
+type FileCatalogFactory struct {
+}
 
+func NewFileCatalogFactory() FileCatalogFactory {
+	FileCatalogFactory := FileCatalogFactory{}
+	return FileCatalogFactory
+}
+
+func (FileCatalogFactory) CreateCatalog() Catalog {
 	catalog := FilesCatalog{}
-	//catalog.products = make(map[int]*product)
-
-	return &catalog
+	return catalog
 }
 
 // todo remove this method from Catalog Interface and use Product construct.

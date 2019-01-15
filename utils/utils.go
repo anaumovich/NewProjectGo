@@ -9,23 +9,23 @@ import (
 )
 
 // todo use AbstractFactory
-func SetCatalogType() CatalogModel.Catalog {
+func CatalogConfigurator() CatalogModel.Catalog {
 	var catalog CatalogModel.Catalog
 
 	useFile := os.Args[1]
 
 	if useFile == "f" {
-		catalog = CatalogModel.NewFileCatalog()
+		catalog = CatalogModel.NewFileCatalogFactory().CreateCatalog()
 		fmt.Println("localhost started with FileCatalog")
 		return catalog
 	}
 	if useFile == "m" {
-		catalog = CatalogModel.NewInMemoryCatalog()
+		catalog = CatalogModel.NewInMemoryCatalogFactory().CreateCatalog()
 		fmt.Println("localhost started with InMemoryCatalog")
 		return catalog
 	}
 	if useFile == "db" {
-		catalog = CatalogModel.NewDbCatalog()
+		catalog = CatalogModel.NewDBCatalogFactory().CreateCatalog()
 		fmt.Println("localhost started with DbCatalog")
 		return catalog
 	}

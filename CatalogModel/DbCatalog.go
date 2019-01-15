@@ -5,10 +5,18 @@ import (
 	"errors"
 )
 
-type DbCatalog struct{}
+type DbCatalog struct {
+}
 
-func NewDbCatalog() *DbCatalog {
+type DBCatalogFactory struct {
+}
 
+func NewDBCatalogFactory() DBCatalogFactory {
+	DBCatalogFactory := DBCatalogFactory{}
+	return DBCatalogFactory
+}
+
+func (DBCatalogFactory) CreateCatalog() Catalog {
 	catalog := DbCatalog{}
 	return &catalog
 }

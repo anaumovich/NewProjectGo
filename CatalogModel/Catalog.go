@@ -37,18 +37,6 @@ func (p Product) GetPrice() float64 {
 	return price
 }
 
-type Catalog interface {
-	AddNewProduct(*Product) (int, error)
-
-	DeleteProductById(int) error
-
-	GetAll() map[int]*Product
-
-	EditProduct(int, string, int64, float64) (int, error)
-
-	GetProductByID(int) (*Product, error)
-}
-
 func CreateNewProduct(name string, count int64, price float64, productType string) (*Product, error) {
 	if name == "" || count < 0 || price < 0 {
 		return nil, errors.New("invalid product data")
@@ -64,6 +52,25 @@ func CreateNewProduct(name string, count int64, price float64, productType strin
 	}
 }
 
+//
+//
+type CatalogFactory interface {
+	CreateCatalog() Catalog
+}
+
+type Catalog interface {
+	AddNewProduct(*Product) (int, error)
+
+	DeleteProductById(int) error
+
+	GetAll() map[int]*Product
+
+	EditProduct(int, string, int64, float64) (int, error)
+
+	GetProductByID(int) (*Product, error)
+}
+
+//
 func OpenOrCreateFile() *os.File {
 
 	_, err := os.Stat("MyFile.txt")

@@ -10,7 +10,7 @@ import (
 
 func main() {
 
-	Catalog := utils.SetCatalogType()
+	Catalog := utils.CatalogConfigurator()
 
 	handler := createRootHandler(getRoutes(&Catalog))
 
@@ -28,7 +28,6 @@ func getRoutes(catalog *CatalogModel.Catalog) (m map[string]func(w http.Response
 	m["GET/edit"] = Controller.FetchProductController(*catalog)
 	m["POST/edit"] = Controller.EditProductController(*catalog)
 	m["GET/delete"] = Controller.DeleteProductController(*catalog)
-	//m["POST/set"] = Controller.SetDiscountController(*catalog)
 	return m
 }
 
