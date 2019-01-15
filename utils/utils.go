@@ -1,8 +1,8 @@
 package utils
 
 import (
-	"AmazingCatalog/CatalogModel"
-	"AmazingCatalog/view"
+	"NewProjectGo/CatalogModel"
+	"NewProjectGo/view"
 	"fmt"
 	"net/http"
 	"os"

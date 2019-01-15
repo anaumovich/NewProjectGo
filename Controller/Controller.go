@@ -1,9 +1,9 @@
 package Controller
 
 import (
-	"AmazingCatalog/CatalogModel"
-	"AmazingCatalog/utils"
-	"AmazingCatalog/view"
+	"NewProjectGo/CatalogModel"
+	"NewProjectGo/utils"
+	"NewProjectGo/view"
 	"fmt"
 	"net/http"
 	"strconv"

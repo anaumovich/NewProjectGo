@@ -1,9 +1,9 @@
 package main
 
 import (
-	"AmazingCatalog/CatalogModel"
-	"AmazingCatalog/Controller"
-	"AmazingCatalog/utils"
+	"NewProjectGo/CatalogModel"
+	"NewProjectGo/Controller"
+	"NewProjectGo/utils"
 	"net/http"
 	"strings"
 )

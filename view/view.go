@@ -1,7 +1,7 @@
 package view
 
 import (
-	"AmazingCatalog/CatalogModel"
+	"NewProjectGo/CatalogModel"
 	"fmt"
 	"strconv"
 	"strings"
