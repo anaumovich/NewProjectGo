@@ -21,7 +21,7 @@ func (DBCatalogFactory) CreateCatalog() Catalog {
 	return &catalog
 }
 
-func (catalog DbCatalog) AddNewProduct(product *Product) (int, error) {
+func (catalog *DbCatalog) AddNewProduct(product *Product) (int, error) {
 	db, _ := sql.Open("postgres", "user = postgres password = 123 dbname = Catalog sslmode = disable")
 	id := 0
 	row := db.QueryRow("select max(id) from catalog")
@@ -39,7 +39,7 @@ func (catalog DbCatalog) AddNewProduct(product *Product) (int, error) {
 	return product.id, errors.New("cannot add product")
 }
 
-func (catalog DbCatalog) DeleteProductById(cameId int) error {
+func (catalog *DbCatalog) DeleteProductById(cameId int) error {
 	db, _ := sql.Open("postgres", "user = postgres password = 123 dbname = Catalog sslmode = disable")
 	maxId := 0
 	row := db.QueryRow("select max(id) from catalog")
@@ -53,7 +53,7 @@ func (catalog DbCatalog) DeleteProductById(cameId int) error {
 	return errors.New("can't edit product")
 }
 
-func (catalog DbCatalog) GetAll() map[int]*Product {
+func (catalog *DbCatalog) GetAll() map[int]*Product {
 
 	db, _ := sql.Open("postgres", "user = postgres password = 123 dbname = Catalog sslmode = disable")
 	rows, _ := db.Query("select * from catalog")
@@ -69,13 +69,13 @@ func (catalog DbCatalog) GetAll() map[int]*Product {
 	return thisMap
 }
 
-func (DbCatalog) EditProduct(cameId int, name string, count int64, price float64) (int, error) {
+func (*DbCatalog) EditProduct(cameId int, name string, count int64, price float64) (int, error) {
 	db, _ := sql.Open("postgres", "user = postgres password = 123 dbname = Catalog sslmode = disable")
 	_ = db.QueryRow("update  catalog  set name = $1,count= $2,price= $3 where id = $4", name, count, price, cameId)
 	return cameId, errors.New("can't edit product")
 }
 
-func (DbCatalog) GetProductByID(cameId int) (*Product, error) {
+func (*DbCatalog) GetProductByID(cameId int) (*Product, error) {
 	product := &Product{}
 
 	db, _ := sql.Open("postgres", "user = postgres password = 123 dbname = Catalog sslmode = disable")

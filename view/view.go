@@ -213,7 +213,6 @@ func PrintProductList(catalog CatalogModel.Catalog) string {
 					button(`>Добавить`)))))
 }
 
-// todo pass by ref
 func AddPageView(productForm CreateProductForm, headerName, buttonName string) string {
 	return fmt.Sprint(
 		html(

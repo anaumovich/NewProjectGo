@@ -1,38 +1,9 @@
 package utils
 
 import (
-	"NewProjectGo/CatalogModel"
 	"NewProjectGo/view"
-	"fmt"
 	"net/http"
-	"os"
 )
-
-// todo use AbstractFactory
-func CatalogConfigurator() CatalogModel.Catalog {
-	var catalog CatalogModel.Catalog
-
-	useFile := os.Args[1]
-
-	if useFile == "f" {
-		catalog = CatalogModel.NewFileCatalogFactory().CreateCatalog()
-		fmt.Println("localhost started with FileCatalog")
-		return catalog
-	}
-	if useFile == "m" {
-		catalog = CatalogModel.NewInMemoryCatalogFactory().CreateCatalog()
-		fmt.Println("localhost started with InMemoryCatalog")
-		return catalog
-	}
-	if useFile == "db" {
-		catalog = CatalogModel.NewDBCatalogFactory().CreateCatalog()
-		fmt.Println("localhost started with DbCatalog")
-		return catalog
-	}
-	return catalog
-}
-
-//
 
 func CheckInputError(r http.Request, name string, countErr, priceErr error) (hasError bool, form *view.CreateProductForm) {
 

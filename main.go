@@ -3,14 +3,13 @@ package main
 import (
 	"NewProjectGo/CatalogModel"
 	"NewProjectGo/Controller"
-	"NewProjectGo/utils"
 	"net/http"
 	"strings"
 )
 
 func main() {
 
-	Catalog := utils.CatalogConfigurator()
+	Catalog := CatalogModel.CatalogConfigurator()
 
 	handler := createRootHandler(getRoutes(&Catalog))
 
@@ -43,5 +42,3 @@ func createRootHandler(m map[string]func(w http.ResponseWriter, r *http.Request)
 		}
 	}
 }
-
-///

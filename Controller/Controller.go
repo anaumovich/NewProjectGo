@@ -29,15 +29,10 @@ func AddProductController(catalog CatalogModel.Catalog) func(http.ResponseWriter
 			_, _ = w.Write([]byte(view.AddPageView(*createProductForm, "Добавьте новый продукт", "Попробовать снова")))
 
 		} else {
-			product, err := CatalogModel.CreateNewProduct(name, count, price, productType)
-
-			if err != nil {
-
-			} else {
-				_, _ = catalog.AddNewProduct(product)
-				w.Header().Set("Location", "http://localhost:8080/list")
-				w.WriteHeader(302)
-			}
+			product := CatalogModel.CreateNewProduct(name, productType, count, price)
+			_, _ = catalog.AddNewProduct(product)
+			w.Header().Set("Location", "http://localhost:8080/list")
+			w.WriteHeader(302)
 		}
 	}
 }

@@ -3,6 +3,8 @@ package CatalogModel
 import (
 	"bufio"
 	"errors"
+	"fmt"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -21,16 +23,14 @@ func NewFileCatalogFactory() FileCatalogFactory {
 
 func (FileCatalogFactory) CreateCatalog() Catalog {
 	catalog := FilesCatalog{}
-	return catalog
+	return &catalog
 }
 
-// todo remove this method from Catalog Interface and use Product construct.
-// todo create fn NewProduct(name string, count int64, price float64, productType string)
-// todo use pointer
+//
 
-func (catalog FilesCatalog) AddNewProduct(product *Product) (int, error) {
+func (catalog *FilesCatalog) AddNewProduct(product *Product) (int, error) {
 
-	// move to method withName getLastId lastId := catalog.getLastId()
+	//todo move to method withName getLastId lastId := catalog.getLastId()
 	file := OpenOrCreateFile()
 	reader := bufio.NewReader(file)
 	lastId := 1
@@ -44,7 +44,7 @@ func (catalog FilesCatalog) AddNewProduct(product *Product) (int, error) {
 		lastId++
 	}
 
-	// serialize
+	// todo serialize
 	a := strconv.Itoa(lastId)
 	b := product.name
 	c := strconv.Itoa(int(product.count))
@@ -57,12 +57,12 @@ func (catalog FilesCatalog) AddNewProduct(product *Product) (int, error) {
 	// write to file
 	_, _ = file.WriteString(textImpression) //записываем введенную строку
 
-	file.Close()
+	_ = file.Close()
 
 	return product.id, errors.New("cannot add product")
 }
 
-func (catalog FilesCatalog) DeleteProductById(cameId int) error {
+func (catalog *FilesCatalog) DeleteProductById(cameId int) error {
 	file := OpenOrCreateFile()
 	reader := bufio.NewReader(file)
 	_, _ = file.Seek(0, 0)
@@ -115,11 +115,11 @@ func (catalog FilesCatalog) DeleteProductById(cameId int) error {
 		}
 
 	}
-	file.Close()
+	_ = file.Close()
 	return errors.New("can't edit product")
 }
 
-func (catalog FilesCatalog) GetAll() map[int]*Product {
+func (catalog *FilesCatalog) GetAll() map[int]*Product {
 
 	file := OpenOrCreateFile()
 
@@ -155,12 +155,12 @@ func (catalog FilesCatalog) GetAll() map[int]*Product {
 
 	}
 
-	file.Close()
+	_ = file.Close()
 
 	return thisMap
 }
 
-func (FilesCatalog) EditProduct(cameId int, name string, count int64, price float64) (int, error) {
+func (*FilesCatalog) EditProduct(cameId int, name string, count int64, price float64) (int, error) {
 	file := OpenOrCreateFile()
 	reader := bufio.NewReader(file)
 	_, _ = file.Seek(0, 0)
@@ -203,13 +203,13 @@ func (FilesCatalog) EditProduct(cameId int, name string, count int64, price floa
 
 			_, _ = file.WriteString(buffer)
 
-			file.Close()
+			_ = file.Close()
 		}
 	}
 	return cameId, errors.New("can't edit product")
 }
 
-func (FilesCatalog) GetProductByID(cameId int) (*Product, error) {
+func (*FilesCatalog) GetProductByID(cameId int) (*Product, error) {
 
 	file := OpenOrCreateFile()
 	reader := bufio.NewReader(file)
@@ -245,4 +245,18 @@ func (FilesCatalog) GetProductByID(cameId int) (*Product, error) {
 		}
 	}
 	return product, errors.New("product not found")
+}
+
+func OpenOrCreateFile() *os.File {
+
+	_, err := os.Stat("MyFile.txt")
+	if err != nil {
+		file, _ := os.Create("MyFile.txt")
+		fmt.Println("I create File")
+		return file
+	} else {
+		file, _ := os.OpenFile("MyFile.txt", os.O_RDWR, 111)
+		fmt.Println("I open File")
+		return file
+	}
 }
