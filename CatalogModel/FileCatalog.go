@@ -18,11 +18,14 @@ type FileCatalogFactory struct {
 
 func NewFileCatalogFactory() FileCatalogFactory {
 	FileCatalogFactory := FileCatalogFactory{}
+
 	return FileCatalogFactory
 }
 
 func (FileCatalogFactory) CreateCatalog() Catalog {
 	catalog := FilesCatalog{}
+	catalog.products = make(map[int]*Product)
+
 	return &catalog
 }
 
@@ -49,8 +52,9 @@ func (catalog *FilesCatalog) AddNewProduct(product *Product) (int, error) {
 	b := product.name
 	c := strconv.Itoa(int(product.count))
 	d := strconv.Itoa(int(product.price))
+	e := product.productType
 
-	textImpression := "#" + a + "|" + b + "$" + c + "&" + d + "\n"
+	textImpression := "#" + a + "|" + b + "$" + c + "&" + d + ":" + e + "\n"
 
 	_, _ = file.Seek(0, 2) // устанавливаем курсор в позицию записи
 
@@ -92,16 +96,18 @@ func (catalog *FilesCatalog) DeleteProductById(cameId int) error {
 					break
 				}
 
-				i := strings.IndexAny(string(nextLine), "|")
-				n := strings.IndexAny(string(nextLine), "$")
+				a := strings.IndexAny(string(nextLine), "|")
+				b := strings.IndexAny(string(nextLine), "$")
 				c := strings.IndexAny(string(nextLine), "&")
+				d := strings.IndexAny(string(nextLine), ":")
 
-				id, _ := strconv.Atoi(string(nextLine[1:i]))
-				name := string(nextLine[i+1 : n])
-				count, _ := strconv.ParseInt(string(nextLine[n+1:c]), 10, 64)
-				price, _ := strconv.ParseFloat(string(nextLine[c+1:]), 64)
+				id, _ := strconv.Atoi(string(nextLine[1:a]))
+				name := string(nextLine[a+1 : b])
+				count, _ := strconv.ParseInt(string(nextLine[b+1:c]), 10, 64)
+				price, _ := strconv.ParseFloat(string(nextLine[c+1:d]), 64)
+				productType := string(nextLine[d+1:])
 
-				str := "#" + strconv.Itoa(id-1) + "|" + name + "$" + strconv.Itoa(int(count)) + "&" + strconv.Itoa(int(price)) + "\n"
+				str := "#" + strconv.Itoa(id-1) + "|" + name + "$" + strconv.Itoa(int(count)) + "&" + strconv.Itoa(int(price)) + ":" + productType + "\n"
 
 				buffer += str
 			}
@@ -125,10 +131,8 @@ func (catalog *FilesCatalog) GetAll() map[int]*Product {
 
 	reader := bufio.NewReader(file)
 
-	thisMap := catalog.products
-
-	for id := range thisMap {
-		delete(thisMap, id)
+	for id := range catalog.products {
+		delete(catalog.products, id)
 	}
 
 	for {
@@ -139,25 +143,24 @@ func (catalog *FilesCatalog) GetAll() map[int]*Product {
 			break
 		}
 
-		i := strings.IndexAny(string(line), "|")
-		n := strings.IndexAny(string(line), "$")
+		a := strings.IndexAny(string(line), "|")
+		b := strings.IndexAny(string(line), "$")
 		c := strings.IndexAny(string(line), "&")
+		d := strings.IndexAny(string(line), ":")
 
-		id, _ := strconv.Atoi(string(line[1:i]))
-		name := string(line[i+1 : n])
-		count, _ := strconv.ParseInt(string(line[n+1:c]), 10, 64)
-		price, _ := strconv.ParseFloat(string(line[c+1:]), 64)
+		id, _ := strconv.Atoi(string(line[1:a]))
+		name := string(line[a+1 : b])
+		count, _ := strconv.ParseInt(string(line[b+1:c]), 10, 64)
+		price, _ := strconv.ParseFloat(string(line[c+1:d]), 64)
+		productType := string(line[d+1:])
 
-		thisMap[id].id = id
-		thisMap[id].name = name
-		thisMap[id].count = count
-		thisMap[id].price = price
+		catalog.products[id] = &Product{id, name, productType, count, price}
 
 	}
 
 	_ = file.Close()
 
-	return thisMap
+	return catalog.products
 }
 
 func (*FilesCatalog) EditProduct(cameId int, name string, count int64, price float64) (int, error) {
@@ -193,7 +196,13 @@ func (*FilesCatalog) EditProduct(cameId int, name string, count int64, price flo
 				buffer += string(nextLine) + "\n"
 			}
 
-			str := "#" + strconv.Itoa(cameId) + "|" + name + "$" + strconv.Itoa(int(count)) + "&" + strconv.Itoa(int(price)) + "\n"
+			b := "#" + strconv.Itoa(cameId) + "|" + name + "$" + strconv.Itoa(int(count)) + "&" + strconv.Itoa(int(price))
+
+			productType := line[len(b)-1:]
+
+			fmt.Println(string(productType))
+
+			str := "#" + strconv.Itoa(cameId) + "|" + name + "$" + strconv.Itoa(int(count)) + "&" + strconv.Itoa(int(price)) + ":" + string(productType) + "\n"
 
 			_, _ = file.Seek(int64(thisPosition), 0) // устанавливаем курсор в позицию записи + int64(len(textImpression))
 
@@ -228,19 +237,22 @@ func (*FilesCatalog) GetProductByID(cameId int) (*Product, error) {
 
 		if cameId == id {
 
-			i := strings.IndexAny(string(line), "|")
-			n := strings.IndexAny(string(line), "$")
+			a := strings.IndexAny(string(line), "|")
+			b := strings.IndexAny(string(line), "$")
 			c := strings.IndexAny(string(line), "&")
+			d := strings.IndexAny(string(line), ":")
 
-			id, _ := strconv.Atoi(string(line[1:i]))
-			name := string(line[i+1 : n])
-			count, _ := strconv.ParseInt(string(line[n+1:c]), 10, 64)
-			price, _ := strconv.ParseFloat(string(line[c+1:]), 64)
+			id, _ := strconv.Atoi(string(line[1:a]))
+			name := string(line[a+1 : b])
+			count, _ := strconv.ParseInt(string(line[b+1:c]), 10, 64)
+			price, _ := strconv.ParseFloat(string(line[c+1:d]), 64)
+			productType := string(line[d+1:])
 
 			product.id = id
 			product.name = name
 			product.count = count
 			product.price = price
+			product.productType = productType
 
 		}
 	}
