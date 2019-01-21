@@ -3,6 +3,7 @@ package main
 import (
 	"NewProjectGo/CatalogModel"
 	"NewProjectGo/Controller"
+	"fmt"
 	"net/http"
 	"strings"
 )
@@ -15,7 +16,8 @@ func main() {
 
 	http.HandleFunc("/", http.HandlerFunc(handler))
 
-	_ = http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(":8080", nil)
+	fmt.Println(err)
 }
 
 func getRoutes(catalog *CatalogModel.Catalog) (m map[string]func(w http.ResponseWriter, r *http.Request)) {

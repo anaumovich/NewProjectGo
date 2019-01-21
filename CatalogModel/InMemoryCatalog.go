@@ -1,7 +1,7 @@
 package CatalogModel
 
 import (
-	"errors"
+	"github.com/pkg/errors"
 )
 
 type InMemoryCatalog struct {
@@ -25,8 +25,7 @@ func (InMemoryCatalogFactory) CreateCatalog() Catalog {
 
 //
 func (catalog *InMemoryCatalog) AddNewProduct(product *Product) (int, error) {
-	a := len(catalog.products)
-	product.id = a + 1
+	product.id = len(catalog.products) + 1
 	catalog.products[product.id] = product
 
 	return 0, errors.New("cannot add product")
@@ -47,16 +46,20 @@ func (catalog *InMemoryCatalog) GetAll() map[int]*Product {
 }
 
 func (catalog *InMemoryCatalog) EditProduct(cameId int, name string, count int64, price float64) (int, error) {
-
+	var err error
 	catalog.products[cameId].id = cameId
 	catalog.products[cameId].name = name
 	catalog.products[cameId].count = count
 	catalog.products[cameId].price = price
-
+    err = {}
 	//здесь должна быть строка которая пересчитает размер скидки с учетом изменения стоимости
-	return cameId, errors.New("can't edit product")
+	return cameId, errors.Wrap(err,"can't edit product")
 }
 
 func (catalog *InMemoryCatalog) GetProductByID(cameId int) (*Product, error) {
-	return catalog.products[cameId], errors.New("product not found")
+	var err error
+	if catalog.products[cameId] == nil {
+		err = errors.New("no ID")
+		}
+	return catalog.products[cameId], err
 }

@@ -45,7 +45,8 @@ func (catalog *FilesCatalog) AddNewProduct(product *Product) (int, error) {
 		lastId++
 	}
 
-	str := "#" + strconv.Itoa(lastId) + "|" + product.name + "$" + strconv.Itoa(int(product.count)) + "&" + strconv.Itoa(int(product.price)) + ":" + product.productType + "\n"
+	str := "#" + strconv.Itoa(lastId) + "|" + product.name + "$" + strconv.Itoa(int(product.count)) +
+		"&" + strconv.Itoa(int(product.price)) + ":" + product.productType + "\n"
 
 	_, _ = file.Seek(0, 2) // устанавливаем курсор в позицию записи
 
@@ -90,7 +91,8 @@ func (catalog *FilesCatalog) DeleteProductById(cameId int) error {
 
 				product = CreateProductFromFile(line, product)
 
-				str := "#" + strconv.Itoa(product.id-1) + "|" + product.name + "$" + strconv.Itoa(int(product.count)) + "&" + strconv.Itoa(int(product.price)) + ":" + product.productType + "\n"
+				str := "#" + strconv.Itoa(product.id-1) + "|" + product.name + "$" + strconv.Itoa(int(product.count)) +
+					"&" + strconv.Itoa(int(product.price)) + ":" + product.productType + "\n"
 				buffer += str
 			}
 
@@ -170,7 +172,8 @@ func (*FilesCatalog) EditProduct(cameId int, name string, count int64, price flo
 
 			productType := line[strings.IndexAny(string(line), ":"):]
 
-			str := "#" + strconv.Itoa(cameId) + "|" + name + "$" + strconv.Itoa(int(count)) + "&" + strconv.Itoa(int(price)) + string(productType) + "\n"
+			str := "#" + strconv.Itoa(cameId) + "|" + name + "$" + strconv.Itoa(int(count)) +
+				"&" + strconv.Itoa(int(price)) + string(productType) + "\n"
 
 			_, _ = file.Seek(int64(thisPosition), 0) // устанавливаем курсор в позицию записи + int64(len(textImpression))
 

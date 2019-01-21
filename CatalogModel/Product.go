@@ -11,19 +11,19 @@ func CreateNewProduct(name string, productType string, count int64, price float6
 	return &Product{name: name, productType: productType, count: count, price: price}
 }
 
-func (p Product) GetId() int {
-	id := p.id
+func (product Product) GetId() int {
+	id := product.id
 	return id
 }
-func (p Product) GetName() string {
-	name := p.name
+func (product Product) GetName() string {
+	name := product.name
 	return name
 }
-func (p Product) GetCount() int64 {
-	count := p.count
+func (product Product) GetCount() int64 {
+	count := product.count
 	return count
 }
-func (p Product) GetPrice() float64 {
-	price := p.price
+func (product Product) GetPrice() float64 {
+	price := product.price
 	return price
 }
