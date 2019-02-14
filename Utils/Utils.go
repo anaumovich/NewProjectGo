@@ -1,15 +1,15 @@
-package utils
+package Utils
 
 import (
-	"NewProjectGo/view"
+	"NewProjectGo/View"
 	"net/http"
 )
 
-func CheckInputError(r http.Request, name string, countErr, priceErr error) (hasError bool, form *view.CreateProductForm) {
+func CheckInputError(r http.Request, name string, countErr, priceErr error) (hasError bool, form *View.CreateProductForm) {
 
 	hasError = false
 
-	createProductForm := view.CreateProductForm{}
+	createProductForm := View.CreateProductForm{}
 
 	createProductForm.Name = name
 	createProductForm.Count = r.FormValue("Second")

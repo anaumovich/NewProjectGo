@@ -14,14 +14,15 @@ import (
 // todo create fn NewProduct(name string, count int64, price float64, productType string)
 // todo use pointer
 // todo use AbstractFactory
-// todo edit view
+// todo edit View
+//
 
 type Catalog interface {
 	AddNewProduct(*Product) (int, error)
 
 	DeleteProductById(int) error
 
-	GetAll() map[int]*Product
+	GetAll() (map[int]*Product, error)
 
 	EditProduct(int, string, int64, float64) (int, error)
 

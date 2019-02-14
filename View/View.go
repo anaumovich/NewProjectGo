@@ -1,4 +1,4 @@
-package view
+package View
 
 import (
 	"NewProjectGo/CatalogModel"
@@ -166,7 +166,7 @@ func childIterator(str []string) string {
 
 func TransformMapToString(catalog CatalogModel.Catalog) string {
 	str := ""
-	mep := catalog.GetAll()
+	mep, _ := catalog.GetAll()
 
 	for i := range mep {
 
@@ -242,4 +242,73 @@ func EditPageView(productForm CreateProductForm, buttonName string, id int) stri
 				form(`edit?product_id=`+strconv.Itoa(id)+`" method="POST">`,
 					formInput(productForm),
 					button(` Name = "product_id" value ="`+strconv.Itoa(id)+`">`+buttonName)))))
+}
+
+func PrintLoginPage(child ...string) string {
+	return fmt.Sprint(
+		html(
+			head(
+				title(`Page Title`),
+				`<style>
+					body, html {
+				 	   height: 100%;
+					}
+					form {
+					    height: 100%;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						flex-direction: column;
+					}
+				</style>`),
+			body(`
+				<form action = "http://localhost:8080/">
+					<p>`, childIterator(child), `</p>
+					<input type = "text"> 
+					<br>
+					<input type = "password">
+					<br>
+					<button>Войти</button>
+				</form>`,
+			)))
+}
+
+func PrintDefaultPage(child ...string) string {
+	return fmt.Sprint(
+		html(
+			head(
+				title(`Page Title`),
+				styles),
+			body(`<p>`, childIterator(child), `</p>`)))
+}
+
+func PrintStartPage(child ...string) string {
+	return fmt.Sprint(
+		html(
+			head(
+				title(`Page Title`),
+				`<style>
+					body, html {
+					    height: 100%;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						flex-direction: column;
+						}
+					table {
+						width: 23%;
+  						table-layout: fixed;
+						}
+					button {
+						width: 100%;
+						}
+				</style>`),
+			body(`
+				<p>`, childIterator(child), `</p>
+				<table>
+					<tr>
+						<td><a href="http://localhost:8080/registration"><button>Регистрация </button></a></td>
+						<td><a href="http://localhost:8080/login"><button>Войти</button></a></td>
+					</tr>
+				</table>`)))
 }
