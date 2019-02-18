@@ -1,79 +1,57 @@
 package CatalogModel
 
 import (
-	"errors"
 	"fmt"
 	_ "github.com/lib/pq"
 	"os"
 )
 
-// todo make public
+// todo make public Product
 // todo use constructor for new inst creation move logic of validation to constructor
-
 // todo Rule: new product don't has id. New it's - mean not saved.
 // todo when user call catalog.AddNewProduct() catalog set id to product
-
-type product struct {
-	id                int
-	name, productType string
-	count             int64
-	price             float64
-}
-
-func (p product) GetId() int {
-	id := p.id
-	return id
-}
-func (p product) GetName() string {
-	name := p.name
-	return name
-}
-func (p product) GetCount() int64 {
-	count := p.count
-	return count
-}
-func (p product) GetPrice() float64 {
-	price := p.price
-	return price
-}
+// todo remove CreateNewProduct method from Catalog Interface and use Product construct.
+// todo create fn NewProduct(name string, count int64, price float64, productType string)
+// todo use pointer
+// todo use AbstractFactory
+// todo edit View
+//
 
 type Catalog interface {
-	AddNewProduct(*product) (int, error)
+	AddNewProduct(*Product) (int, error)
 
 	DeleteProductById(int) error
 
-	GetAll() map[int]*product
+	GetAll() (map[int]*Product, error)
 
 	EditProduct(int, string, int64, float64) (int, error)
 
-	GetProductByID(int) (*product, error)
+	GetProductByID(int) (*Product, error)
 }
 
-func CreateNewProduct(name string, count int64, price float64, productType string) (*product, error) {
-	if name == "" || count < 0 || price < 0 {
-		return nil, errors.New("invalid product data")
-	} else {
-		Product := product{}
-
-		Product.name = name
-		Product.count = count
-		Product.price = price
-		Product.productType = productType
-
-		return &Product, nil
-	}
+type CatalogFactory interface {
+	CreateCatalog() Catalog
 }
 
-func OpenOrCreateFile() *os.File {
+func CatalogConfigurator() Catalog {
+	var catalog Catalog
 
-	_, err := os.Stat("MyFile.txt")
-	if err != nil {
-		file, _ := os.Create("MyFile.txt")
-		fmt.Println("I create File")
-		return file
-	} else {
-		file, _ := os.OpenFile("MyFile.txt", os.O_RDWR, 111)
-		fmt.Println("I open File")
-		return file
+	useFile := os.Args[1]
+
+	if useFile == "f" {
+		catalog = NewFileCatalogFactory().CreateCatalog()
+		fmt.Println("localhost started with FileCatalog")
+		return catalog
 	}
+	if useFile == "m" {
+		catalog = NewInMemoryCatalogFactory().CreateCatalog()
+		fmt.Println("localhost started with InMemoryCatalog")
+		return catalog
+	}
+	if useFile == "db" {
+		catalog = NewDBCatalogFactory().CreateCatalog()
+		fmt.Println("localhost started with DbCatalog")
+		return catalog
+	}
+	return catalog
 }

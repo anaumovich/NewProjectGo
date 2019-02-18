@@ -2,22 +2,30 @@ package CatalogModel
 
 import (
 	"database/sql"
-	"errors"
+	"github.com/pkg/errors"
 )
 
-type DbCatalog struct{}
+type DbCatalog struct {
+}
 
-func NewDbCatalog() *DbCatalog {
+type DBCatalogFactory struct {
+}
 
+func NewDBCatalogFactory() DBCatalogFactory {
+	DBCatalogFactory := DBCatalogFactory{}
+	return DBCatalogFactory
+}
+
+func (DBCatalogFactory) CreateCatalog() Catalog {
 	catalog := DbCatalog{}
 	return &catalog
 }
 
-func (catalog DbCatalog) AddNewProduct(product *product) (int, error) {
-	db, _ := sql.Open("postgres", "user = postgres password = 123 dbname = Catalog sslmode = disable")
+func (catalog *DbCatalog) AddNewProduct(product *Product) (int, error) {
+	db, err := sql.Open("postgres", "user = postgres password = 123 dbname = Catalog sslmode = disable")
 	id := 0
 	row := db.QueryRow("select max(id) from catalog")
-	_ = row.Scan(&id)
+	err = row.Scan(&id)
 
 	if id == 0 {
 		id = 1
@@ -25,56 +33,59 @@ func (catalog DbCatalog) AddNewProduct(product *product) (int, error) {
 		id = int(id) + 1
 	}
 
-	_, _ = db.Exec("insert into catalog (id, name, count, price, producttype) values ($1,$2,$3,$4,$5)",
+	_, err = db.Exec("insert into catalog (id, name, count, price, producttype) values ($1,$2,$3,$4,$5)",
 		id, product.name, product.count, product.price, product.productType)
-	_ = db.Close()
-	return product.id, errors.New("cannot add product")
+	err = db.Close()
+	return product.id, errors.Wrap(err, "AddNewProduct")
 }
 
-func (catalog DbCatalog) DeleteProductById(cameId int) error {
-	db, _ := sql.Open("postgres", "user = postgres password = 123 dbname = Catalog sslmode = disable")
+func (catalog *DbCatalog) DeleteProductById(cameId int) error {
+	db, err := sql.Open("postgres", "user = postgres password = 123 dbname = Catalog sslmode = disable")
 	maxId := 0
 	row := db.QueryRow("select max(id) from catalog")
-	_ = row.Scan(&maxId)
-	_, _ = db.Exec("delete from catalog where id = $1", cameId) //удаляем продукт по id
+	err = row.Scan(&maxId)
+	_, err = db.Exec("delete from catalog where id = $1", cameId) //удаляем продукт по id
 
 	for i := cameId + 1; i <= maxId; i++ {
-		_, _ = db.Exec("update catalog set id = $1 where id = $2", i-1, i)
+		_, err = db.Exec("update catalog set id = $1 where id = $2", i-1, i)
 	}
-	_ = db.Close()
-	return errors.New("can't edit product")
+	err = db.Close()
+	return errors.Wrap(err, "DeleteProductById")
 }
 
-func (catalog DbCatalog) GetAll() map[int]*product {
+func (catalog *DbCatalog) GetAll() (map[int]*Product, error) {
 
-	db, _ := sql.Open("postgres", "user = postgres password = 123 dbname = Catalog sslmode = disable")
-	rows, _ := db.Query("select * from catalog")
-	thisMap := map[int]*product{}
+	db, err := sql.Open("postgres", "user = postgres password = 123 dbname = Catalog sslmode = disable")
+	rows, err := db.Query("select * from catalog")
+	thisMap := map[int]*Product{}
 	i := 1
 	for rows.Next() {
-		product := product{}
-		_ = rows.Scan(&product.id, &product.name, &product.count, &product.price, &product.productType)
+		product := Product{}
+		err = rows.Scan(&product.id, &product.name, &product.count, &product.price, &product.productType)
 		thisMap[i] = &product
 		i++
 	}
-	_ = db.Close()
-	return thisMap
+
+	return thisMap, errors.Wrap(err, "GetAll")
 }
 
-func (DbCatalog) EditProduct(cameId int, name string, count int64, price float64) (int, error) {
-	db, _ := sql.Open("postgres", "user = postgres password = 123 dbname = Catalog sslmode = disable")
+func (*DbCatalog) EditProduct(cameId int, name string, count int64, price float64) (int, error) {
+	db, err := sql.Open("postgres", "user = postgres password = 123 dbname = Catalog sslmode = disable")
+
+	err = db.Ping()
 	_ = db.QueryRow("update  catalog  set name = $1,count= $2,price= $3 where id = $4", name, count, price, cameId)
-	return cameId, errors.New("can't edit product")
+	return cameId, errors.Wrap(err, "DbCatalogEditProduct")
 }
 
-func (DbCatalog) GetProductByID(cameId int) (*product, error) {
-	Product := &product{}
+func (*DbCatalog) GetProductByID(cameId int) (*Product, error) {
+	product := &Product{}
 
-	db, _ := sql.Open("postgres", "user = postgres password = 123 dbname = Catalog sslmode = disable")
+	db, err := sql.Open("postgres", "user = postgres password = 123 dbname = Catalog sslmode = disable")
 
 	row := db.QueryRow("select id,name,count,price,producttype from catalog where id = $1", cameId)
 
-	_ = row.Scan(&Product.id, &Product.name, &Product.count, &Product.price, &Product.productType)
-	_ = db.Close()
-	return Product, errors.New("product not found")
+	err = row.Scan(&product.id, &product.name, &product.count, &product.price, &product.productType)
+	err = db.Close()
+
+	return product, errors.Wrap(err, "GetProductByID")
 }
